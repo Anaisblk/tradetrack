@@ -1,0 +1,15 @@
+export const QUERY_KEYS = {
+  clients: ['clients'],
+  client: (id) => ['clients', id],
+  products: ['products'],
+  product: (id) => ['products', id],
+  categories: ['categories'],
+  repairs: ['repairs'],
+  repair: (id) => ['repairs', id],
+  quotes: ['quotes'],
+  quote: (id) => ['quotes', id],
+  appointments: ['appointments'],
+  stockMovements: ['stock', 'movements'],
+  dashboard: (type) => ['dashboard', type],
+  notifications: ['notifications'],
+}

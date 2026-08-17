@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+venv/
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Secrets — ne jamais publier
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# Livrables scolaires et sauvegardes locales (hors périmètre du dépôt de code)
+dossier_rendu/
+*.sql
+
+# Artefacts bureautiques (LibreOffice / Word)
+*.tmp
+.~lock.*#
+
+# Outils
+.claude/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# NOTE : pas de règle sur alembic/versions/ — les migrations DOIVENT être versionnées,
+# sinon aucun déploiement ne peut créer le schéma de la base.

@@ -1,0 +1,56 @@
+# Blueprint Render — décrit les 3 services d'un coup.
+# Sur render.com : New > Blueprint > sélectionner ce dépôt > Apply.
+#
+# Après le premier déploiement, deux variables restent à renseigner à la main
+# (elles se référencent mutuellement, impossible de les connaître avant) :
+#   tradetrack-api : CORS_ORIGINS  = https://tradetrack-web.onrender.com
+#   tradetrack-web : VITE_API_URL  = https://tradetrack-api.onrender.com/api
+
+databases:
+  - name: tradetrack-db
+    plan: free
+    databaseName: tradetrack
+    user: tradetrack
+
+services:
+  # --- API FastAPI ---
+  - type: web
+    name: tradetrack-api
+    runtime: python
+    plan: free
+    branch: master # sans cette clé, Render suit la branche par défaut du dépôt
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    # `alembic upgrade head` au démarrage (et non en pre-deploy, réservé aux offres
+    # payantes) : l'opération est idempotente et crée le schéma au premier lancement.
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tradetrack-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true # secret de production, distinct de celui du poste local
+      - key: CORS_ORIGINS
+        sync: false # à renseigner avec l'URL du frontend
+    # Redis n'est pas déployé : le service démarre sans, seul le push temps réel
+    # des notifications passe en mode dégradé.
+
+  # --- Frontend React (site statique) ---
+  - type: web
+    name: tradetrack-web
+    runtime: static
+    branch: master
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false # à renseigner avec l'URL de l'API, suffixée par /api
+    routes:
+      # Sans cette réécriture, React Router renvoie une 404 sur les liens profonds
+      # (accès direct à /stock, /clients/3, etc.).
+      - type: rewrite
+        source: /*
+        destination: /index.html
