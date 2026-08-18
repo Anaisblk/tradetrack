@@ -1,14 +1,7 @@
 import { IconArrowUp, IconArrowDown, IconArrowUpDown } from './Icon'
 
 /**
- * Header de colonne cliquable pour le tri d'un tableau.
- *
- * Props :
- *  - label : string (texte affiché)
- *  - field : string (clé d'identification du champ pour `sort.field`)
- *  - sort  : { field, direction } — état courant de tri remonté par la page
- *  - onSort: (field) => void — déclenche le toggle / changement de champ
- *  - className : optionnel, classes Tailwind additionnelles (ex: largeur)
+ * Clickable table header. Sort state is held by the page and passed down.
  */
 export default function SortableHeader({ label, field, sort, onSort, className = '' }) {
   const isActive = sort?.field === field

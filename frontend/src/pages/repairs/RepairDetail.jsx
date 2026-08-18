@@ -27,14 +27,13 @@ export default function RepairDetail() {
   const qc = useQueryClient()
   const { data: repair, isLoading } = useQuery({ queryKey: QUERY_KEYS.repair(id), queryFn: () => fetchRepair(id) })
 
-  // Devis liés — Option B : on récupère les devis puis on filtre côté client
-  // sur le tag inséré dans les notes par RepairQuoteForm.
+  // Linked quotes: fetched then filtered on the tag RepairQuoteForm writes in the notes
   const { data: allQuotes = [] } = useQuery({ queryKey: QUERY_KEYS.quotes, queryFn: () => fetchQuotes() })
   const linkedQuotes = allQuotes.filter(
     (q) => q.notes && q.notes.includes(`Devis pour réparation #${id} —`)
   )
 
-  // Détails techniques — pré-remplis depuis la réparation, resynchronisés à chaque rechargement.
+  // Technical details, refilled from the repair on every reload
   const [diagnosis, setDiagnosis] = useState('')
   const [repairCostHt, setRepairCostHt] = useState('')
   const [showQuoteModal, setShowQuoteModal] = useState(false)

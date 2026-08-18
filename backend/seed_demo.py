@@ -160,7 +160,7 @@ async def get_or_create_admin(db):
 
 
 async def get_or_create_categories(db):
-    """Garantit que les 5 catégories de base existent et les retourne."""
+    """Makes sure the 5 base categories exist."""
     needed = [
         ("Téléphone", "article"),
         ("PC Portable", "article"),

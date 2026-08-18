@@ -27,9 +27,7 @@ export default function Sidebar({ mobileOpen = false, onClose = () => {} }) {
     try { return localStorage.getItem(STORAGE_KEY) === '1' } catch { return false }
   })
 
-  // Sous `lg`, la barre devient un tiroir de 256px : le repli en icônes seules n'a plus
-  // de sens et serait illisible au doigt. On neutralise donc `collapsed` hors desktop,
-  // sans toucher à la préférence enregistrée.
+  // Below lg the sidebar is a drawer, so the icons-only mode is disabled there
   const isDesktop = useMediaQuery(LG)
 
   useEffect(() => {
@@ -41,7 +39,7 @@ export default function Sidebar({ mobileOpen = false, onClose = () => {} }) {
 
   return (
     <>
-      {/* Voile : ferme le tiroir au clic. Mobile uniquement. */}
+      {/* Overlay, mobile only */}
       {mobileOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/50 lg:hidden"
@@ -75,7 +73,7 @@ export default function Sidebar({ mobileOpen = false, onClose = () => {} }) {
               </span>
             </div>
           )}
-          {/* Repli : desktop uniquement. Sur mobile, la fermeture se fait par le voile. */}
+          {/* Collapse button, desktop only */}
           <button
             type="button"
             onClick={toggle}
@@ -87,7 +85,7 @@ export default function Sidebar({ mobileOpen = false, onClose = () => {} }) {
               <IconChevronLeft size={16} />
             </span>
           </button>
-          {/* Fermeture du tiroir : mobile uniquement */}
+          {/* Close the drawer, mobile only */}
           <button
             type="button"
             onClick={onClose}

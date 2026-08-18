@@ -1,13 +1,5 @@
 /**
- * Composant de pagination réutilisable.
- *
- * Props :
- *  - page : numéro de page courant (1-indexé)
- *  - pageSize : nombre d'éléments par page
- *  - total : nombre total d'éléments (sur l'ensemble des pages)
- *  - onPageChange(n) : appelé quand on clique sur un numéro de page
- *  - onPageSizeChange(n) : appelé quand on change la taille via le sélecteur
- *  - disabled : désactive les contrôles (pendant le chargement)
+ * Reusable pagination: page numbers and a page size selector.
  */
 export default function Pagination({ page, pageSize, total, onPageChange, onPageSizeChange, disabled = false }) {
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
@@ -19,7 +11,7 @@ export default function Pagination({ page, pageSize, total, onPageChange, onPage
     if (safe !== page) onPageChange(safe)
   }
 
-  // Liste compacte des pages à afficher : 1, ..., n-1, n, n+1, ..., totalPages
+  // Compact page list: 1, ..., n-1, n, n+1, ..., last
   const buildPages = () => {
     const pages = new Set([1, totalPages, page, page - 1, page + 1])
     const sorted = [...pages].filter((n) => n >= 1 && n <= totalPages).sort((a, b) => a - b)

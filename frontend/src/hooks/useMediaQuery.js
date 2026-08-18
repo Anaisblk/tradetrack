@@ -1,16 +1,8 @@
 import { useState, useEffect } from 'react'
 
 /**
- * Suit l'état d'une media query CSS depuis React.
- *
- * Nécessaire pour les cas que Tailwind ne peut pas couvrir : les composants qui reçoivent
- * leurs dimensions en props JavaScript plutôt qu'en classes CSS (les graphiques Recharts,
- * par exemple), ou une logique conditionnelle dépendant de la taille d'écran.
- *
- * Pour tout le reste, préférer les préfixes Tailwind (`sm:`, `md:`, `lg:`) : ils n'ont
- * aucun coût au rendu.
- *
- * @param {string} query - ex. '(min-width: 1024px)'
+ * Tracks a CSS media query from React. Needed for components sized in JS
+ * (Recharts). Everywhere else, Tailwind prefixes are enough.
  */
 export default function useMediaQuery(query) {
   const [matches, setMatches] = useState(
@@ -28,7 +20,7 @@ export default function useMediaQuery(query) {
   return matches
 }
 
-// Breakpoints Tailwind, pour éviter les chaînes en dur dans les composants.
+// Tailwind breakpoints
 export const SM = '(min-width: 640px)'
 export const MD = '(min-width: 768px)'
 export const LG = '(min-width: 1024px)'

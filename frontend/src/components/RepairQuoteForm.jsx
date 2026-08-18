@@ -24,8 +24,7 @@ export default function RepairQuoteForm({ repair, onCancel, onSuccess, cancelLab
       if (status && status !== 'brouillon') {
         await updateQuote(created.id, { status })
       }
-      // Met à jour le coût de la réparation à partir du total HT du devis.
-      // Le backend recalcule automatiquement tva_amount et repair_cost_ttc.
+      // Updates the repair cost from the quote total; the backend recomputes the VAT
       if (repairCostHt > 0) {
         await updateRepair(repair.id, { repair_cost_ht: repairCostHt })
       }
@@ -41,8 +40,7 @@ export default function RepairQuoteForm({ repair, onCancel, onSuccess, cancelLab
   })
 
   const setLine = (idx, field, value) => {
-    // Stockage en string brute pour permettre l'édition libre.
-    // La conversion en nombre se fait au submit.
+    // Kept as a raw string so the field stays freely editable, converted on submit
     setItems((prev) => prev.map((it, i) => i === idx ? { ...it, [field]: value } : it))
   }
 

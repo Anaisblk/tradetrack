@@ -24,7 +24,7 @@ const EMPTY_FORM = {
   condition: 'neuf',
 }
 
-// Mêmes champs que les SortableHeader du tableau, pour le tri en vue cartes.
+// Same fields as the table headers, for the card view
 const SORT_FIELDS = [
   { label: 'Produit', field: 'name' },
   { label: 'Catégorie', field: 'category' },
@@ -180,7 +180,7 @@ export default function StockPage() {
       <MobileSortSelect className="md:hidden" fields={SORT_FIELDS} sort={sort} onSort={handleSort} />
 
       <div className="bg-white rounded-xl border overflow-hidden">
-        {/* Mobile : cartes. Le tableau reprend la main à partir de `md`. */}
+        {/* Cards on mobile, table from md */}
         <div className="md:hidden divide-y">
           {products.length === 0 ? (
             <p className="text-center py-8 text-gray-400 text-sm">Aucun produit</p>
@@ -252,8 +252,6 @@ export default function StockPage() {
           disabled={isFetching}
         />
       </div>
-
-      {/* Modale création */}
       <Modal isOpen={showCreateModal} onClose={closeCreate} title="Nouveau produit" size="lg">
         <form onSubmit={handleCreate} className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -283,8 +281,6 @@ export default function StockPage() {
           </div>
         </form>
       </Modal>
-
-      {/* Modale édition */}
       <Modal isOpen={!!editTarget} onClose={closeEdit} title={editTarget ? `Modifier — ${editTarget.name}` : ''} size="lg">
         <form onSubmit={handleEdit} className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

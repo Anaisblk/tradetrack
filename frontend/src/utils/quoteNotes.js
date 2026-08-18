@@ -1,24 +1,16 @@
 /**
- * Sérialisation/parsing des méta-données appareil dans le champ notes
- * d'un devis autonome.
+ * A quote has no device columns, so the device and the reported problem are
+ * stored as two lines at the top of the notes field, before the free notes.
  *
- * Le champ notes d'un devis peut contenir des méta-données structurées
- * (appareil concerné, problème signalé) en tête, suivies des notes
- * libres du technicien. Cette approche évite d'ajouter des colonnes
- * dédiées au modèle Quote.
- *
- * Format standard :
- *   Appareil : <type> [<marque>] [<modèle>]
+ *   Appareil : <type> [<brand>] [<model>]
  *   Problème : <description>
- *
- *   <notes libres>
  */
 
 const DEVICE_LINE_REGEX = /^Appareil\s*:\s*(.+)$/m
 const PROBLEM_LINE_REGEX = /^Problème\s*:\s*(.+)$/m
 
 /**
- * Exemple :
+ * Example:
  *   serializeQuoteNotes({ deviceType: 'Smartphone', deviceBrand: 'Apple',
  *     deviceModel: 'iPhone 14 Pro', problem: 'Écran cassé', freeNotes: 'Sous garantie' })
  *   => "Appareil : Smartphone Apple iPhone 14 Pro\nProblème : Écran cassé\n\nSous garantie"
@@ -40,7 +32,7 @@ export function serializeQuoteNotes({ deviceType, deviceBrand, deviceModel, prob
 }
 
 /**
- * Exemple :
+ * Example:
  *   parseQuoteNotes("Appareil : Smartphone Apple iPhone 14 Pro\nProblème : Écran cassé\n\nSous garantie")
  *   => { deviceInfo: 'Smartphone Apple iPhone 14 Pro', problem: 'Écran cassé', freeNotes: 'Sous garantie' }
  */
@@ -54,8 +46,7 @@ export function parseQuoteNotes(notesString) {
   const deviceInfo = deviceMatch ? deviceMatch[1].trim() : ''
   const problem = problemMatch ? problemMatch[1].trim() : ''
 
-  // Extraire les notes libres = tout ce qui reste après les 2 lignes
-  // structurées + une ligne vide de séparation
+  // Free notes are whatever is left after the two structured lines
   let freeNotes = notesString
   if (deviceMatch) freeNotes = freeNotes.replace(deviceMatch[0], '').trim()
   if (problemMatch) freeNotes = freeNotes.replace(problemMatch[0], '').trim()
@@ -64,13 +55,11 @@ export function parseQuoteNotes(notesString) {
 }
 
 /**
- * Extrait juste les champs individuels du bloc "Appareil : X Y Z" en
- * essayant de reconnaître type/brand/model. Best-effort : renvoie
- * uniquement deviceType si le format ne matche pas.
+ * Splits the "Appareil : X Y Z" line back into type / brand / model.
+ * Best-effort: returns only deviceType when the format does not match.
+ * Used to prefill NewRepair from a quote.
  *
- * Utile pour préremplir NewRepair depuis la passerelle.
- *
- * Exemple :
+ * Example:
  *   extractDeviceFields('Smartphone Apple iPhone 14 Pro', DEVICE_TYPES, getBrands)
  *   => { device_type: 'Smartphone', device_brand: 'Apple', device_model: 'iPhone 14 Pro' }
  */
@@ -78,7 +67,7 @@ export function extractDeviceFields(deviceInfo, deviceTypes, brandsGetter) {
   if (!deviceInfo) return { device_type: '', device_brand: '', device_model: '' }
 
   const parts = deviceInfo.split(' ')
-  // Cherche le premier match parmi les DEVICE_TYPES connus
+  // Looks for a known device type
   let deviceType = ''
   let brandStartIdx = 0
   for (const t of deviceTypes) {
@@ -89,12 +78,12 @@ export function extractDeviceFields(deviceInfo, deviceTypes, brandsGetter) {
     }
   }
   if (!deviceType) {
-    // Fallback : premier mot
+    // Fallback: first word
     deviceType = parts[0] || ''
     brandStartIdx = 1
   }
 
-  // Cherche la marque parmi celles connues pour ce type
+  // Looks for a known brand for that type
   let deviceBrand = ''
   let modelStartIdx = brandStartIdx
   if (deviceType && brandsGetter) {

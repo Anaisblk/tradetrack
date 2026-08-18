@@ -4,7 +4,7 @@ export const fetchDashboardToday = () => api.get('/dashboard/today').then((r) =>
 export const fetchDashboardMonthly = () => api.get('/dashboard/monthly').then((r) => r.data)
 export const fetchDashboardAnnual = () => api.get('/dashboard/annual').then((r) => r.data)
 
-// Stats atelier (réparations)
+// Repair stats
 export const fetchRepairsStats = (period) => api.get('/dashboard/repairs-stats', { params: { period } }).then((r) => r.data)
 export const fetchRepairsMonthly = () => api.get('/dashboard/repairs-monthly').then((r) => r.data)
 export const fetchRepairsDailyRevenue = () => api.get('/dashboard/repairs-daily-revenue').then((r) => r.data)

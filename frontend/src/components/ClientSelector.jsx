@@ -86,8 +86,6 @@ export default function ClientSelector({ value, onChange }) {
   }
 
   const setField = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }))
-
-  // --- Client sélectionné ---
   if (mode === 'selected' && value) {
     return (
       <div>
@@ -113,8 +111,6 @@ export default function ClientSelector({ value, onChange }) {
       </div>
     )
   }
-
-  // --- Mode recherche (idle) ---
   return (
     <div>
       <label className="text-sm font-medium text-gray-700 block mb-1">Client</label>

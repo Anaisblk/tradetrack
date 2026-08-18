@@ -7,8 +7,7 @@ export default function Layout() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const { pathname } = useLocation()
 
-  // Ferme le tiroir à chaque changement de route. Les NavLink appellent déjà onClose,
-  // ceci couvre les autres cas : navigation programmatique, bouton retour du navigateur.
+  // Closes the drawer on every route change
   useEffect(() => { setMobileNavOpen(false) }, [pathname])
 
   return (
@@ -16,7 +15,7 @@ export default function Layout() {
       <Sidebar mobileOpen={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar onOpenNav={() => setMobileNavOpen(true)} />
-        {/* overflow-x-hidden : dernier rempart contre un débordement horizontal ponctuel */}
+        {/* Last safety net against horizontal overflow */}
         <main className="flex-1 p-4 sm:p-6 overflow-x-hidden">
           <Outlet />
         </main>

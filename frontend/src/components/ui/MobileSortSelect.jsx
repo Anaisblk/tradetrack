@@ -1,16 +1,8 @@
 import { IconArrowUp, IconArrowDown } from './Icon'
 
 /**
- * Contrôle de tri pour l'affichage en cartes (mobile).
- *
- * Sous `md`, les tableaux laissent place à des cartes : les en-têtes cliquables de
- * SortableHeader disparaissent donc avec eux. Ce composant rend le tri à nouveau
- * accessible, en s'appuyant sur exactement le même état que le tableau.
- *
- * Props (identiques à SortableHeader, pour rester interchangeable) :
- *  - fields : [{ label, field }] — les mêmes colonnes triables que le tableau
- *  - sort   : { field, direction }
- *  - onSort : (field) => void — bascule le sens si le champ est déjà actif
+ * Sort control for the card view on mobile, where table headers are hidden.
+ * Uses the same sort state as the table.
  */
 export default function MobileSortSelect({ fields = [], sort, onSort, className = '' }) {
   if (fields.length === 0) return null

@@ -1,4 +1,4 @@
-"""Script de données initiales pour TradeTrack.
+"""Initial data for TradeTrack.
 Usage: cd backend && python seed.py
 """
 import asyncio
@@ -56,7 +56,6 @@ async def seed():
             db.add(tech)
             await db.flush()
 
-            # Categories
             from app.models.category import Category
             cats = [
                 Category(name="Téléphone", type="article"),
@@ -68,7 +67,6 @@ async def seed():
             for c in cats: db.add(c)
             await db.flush()
 
-            # Products
             from app.models.product import Product
             products = [
                 Product(name="iPhone 14 Pro", category_id=cats[0].id, barcode="PHONE001", purchase_price=800, selling_price=1099, stock_quantity=5, condition="neuf", tva_rate=20.0, created_by_id=admin.id),
@@ -85,7 +83,6 @@ async def seed():
             for p in products: db.add(p)
             await db.flush()
 
-            # Clients
             from app.models.client import Client
 
             clients_data = [
