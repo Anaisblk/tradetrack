@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { fetchMe, exportMyData, requestMyDeletion } from '../../api/clients'
+import { fetchMe, fetchMyDataSummary, exportMyData, requestMyDeletion } from '../../api/clients'
 import { formatDate } from '../../utils/formatters'
 import Button from '../../components/ui/Button'
 import Modal from '../../components/ui/Modal'
@@ -13,6 +13,24 @@ export default function MyData() {
 
   const { data: me } = useQuery({ queryKey: ['me'], queryFn: fetchMe })
   const deletionRequestedAt = me?.deletion_requested_at
+
+  // Le volume réellement détenu conditionne l'export : le backend refuse de produire un
+  // PDF vide, l'interface ne doit donc pas le proposer. Même source de vérité des deux côtés.
+  const { data: summary, isLoading: summaryLoading } = useQuery({
+    queryKey: ['me', 'data-summary'],
+    queryFn: fetchMyDataSummary,
+  })
+  const hasData = summary?.has_data === true
+
+  // « 2 réparations, 1 devis » — seules les sections non vides sont citées.
+  const summaryLabel = [
+    [summary?.repairs, 'réparation'],
+    [summary?.quotes, 'devis'],
+    [summary?.appointments, 'rendez-vous'],
+  ]
+    .filter(([n]) => n > 0)
+    .map(([n, mot]) => `${n} ${mot}${n > 1 && !mot.endsWith('s') ? 's' : ''}`)
+    .join(', ')
 
   const exportMutation = useMutation({
     mutationFn: exportMyData,
@@ -53,18 +71,40 @@ export default function MyData() {
         </p>
       </div>
 
-      {/* Export */}
-      <div className="bg-white rounded-xl border p-6 space-y-3">
-        <h3 className="font-semibold">Exporter mes données</h3>
-        <p className="text-sm text-gray-600">
-          Téléchargez un PDF contenant toutes les données que nous détenons sur vous : profil,
-          historique de vos réparations, devis, rendez-vous. Ce document est établi conformément
-          à l'article 20 du RGPD (droit à la portabilité).
-        </p>
-        <Button onClick={() => exportMutation.mutate()} disabled={exportMutation.isPending}>
-          {exportMutation.isPending ? 'Préparation…' : 'Télécharger mes données (PDF)'}
-        </Button>
-      </div>
+      {/* Export — masqué tant qu'il n'y a rien à exporter */}
+      {summaryLoading ? (
+        // Pendant le chargement, on n'affiche aucun bouton : mieux vaut ne rien montrer
+        // qu'une action qui disparaîtrait juste après.
+        <div className="bg-white rounded-xl border p-6">
+          <p className="text-sm text-gray-400">Chargement de vos données…</p>
+        </div>
+      ) : hasData ? (
+        <div className="bg-white rounded-xl border p-6 space-y-3">
+          <h3 className="font-semibold">Exporter mes données</h3>
+          <p className="text-sm text-gray-600">
+            Téléchargez un PDF contenant toutes les données que nous détenons sur vous : profil,
+            historique de vos réparations, devis, rendez-vous. Ce document est établi conformément
+            à l'article 20 du RGPD (droit à la portabilité).
+          </p>
+          <p className="text-sm text-gray-500">
+            Nous détenons actuellement {summaryLabel}.
+          </p>
+          <Button onClick={() => exportMutation.mutate()} disabled={exportMutation.isPending}>
+            {exportMutation.isPending ? 'Préparation…' : 'Télécharger mes données (PDF)'}
+          </Button>
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl border p-6 space-y-2">
+          <h3 className="font-semibold">Aucune donnée enregistrée</h3>
+          <p className="text-sm text-gray-600">
+            Vous n'avez encore aucune donnée à afficher : ni réparation, ni devis, ni rendez-vous.
+          </p>
+          <p className="text-sm text-gray-500">
+            Dès votre première visite à l'atelier, votre historique apparaîtra ici et vous pourrez
+            le télécharger au format PDF.
+          </p>
+        </div>
+      )}
 
       {/* Suppression */}
       <div className="bg-white rounded-xl border border-red-200 p-6 space-y-3">

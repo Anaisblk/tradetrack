@@ -20,7 +20,7 @@ AsyncSession = async_sessionmaker(engine, expire_on_commit=False)
 async def seed():
     async with AsyncSession() as db:
         async with db.begin():
-            # Admin user
+            # Staff accounts
             from app.models.user import User, UserRole
             admin = User(
                 email="admin@tradetrack.fr",

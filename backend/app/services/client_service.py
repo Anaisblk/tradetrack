@@ -11,7 +11,10 @@ from reportlab.lib.units import mm
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
 
+from app.models.appointment import Appointment
 from app.models.client import Client
+from app.models.quote import Quote
+from app.models.repair import Repair
 from app.models.user import User
 from app.schemas.client import ClientCreate, ClientUpdate
 
@@ -71,14 +74,10 @@ async def list_clients_paginated(
                 Client.email.ilike(pattern),
             )
         )
-
-    # Total
     count_q = select(func.count(Client.id))
     for f in filters:
         count_q = count_q.where(f)
     total = (await db.execute(count_q)).scalar_one()
-
-    # Items
     q = select(Client)
     for f in filters:
         q = q.where(f)
@@ -125,11 +124,21 @@ async def link_user_to_client(db: AsyncSession, client_id: int, user_id: int) ->
     return client
 
 
+async def get_client_data_counts(db: AsyncSession, client_id: int) -> dict[str, int]:
+    """Used both by the client portal and by the export guard, so they always agree.
+    The client profile is not counted: it always exists and is not a history."""
+    counts: dict[str, int] = {}
+    for key, model in (("repairs", Repair), ("quotes", Quote), ("appointments", Appointment)):
+        result = await db.execute(
+            select(func.count()).select_from(model).where(model.client_id == client_id)
+        )
+        counts[key] = int(result.scalar_one())
+    counts["total"] = sum(counts.values())
+    return counts
+
+
 async def export_client_data(db: AsyncSession, client_id: int) -> dict:
-    """RGPD — droit à la portabilité (art. 20).
-    Retourne toutes les données personnelles que nous détenons sur ce client
-    sous forme d'un dictionnaire sérialisable en JSON.
-    """
+    """GDPR art. 20 — all personal data we hold on this client, as a dict."""
     result = await db.execute(
         select(Client).where(Client.id == client_id)
         .options(selectinload(Client.repairs))
@@ -199,7 +208,7 @@ def _fmt_dt(value, with_time: bool = False) -> str:
 
 
 def _repair_flowables(r: dict, styles) -> list:
-    """Bloc PDF pour une réparation."""
+    """PDF block for one repair."""
     device = r["device_type"]
     if r.get("device_brand"):
         device += f" {r['device_brand']}"
@@ -253,12 +262,12 @@ def _draw_footer(canvas, doc) -> None:
 
 
 def _hr():
-    """Séparateur horizontal léger entre deux blocs."""
+    """Thin separator between two blocks."""
     return HRFlowable(width="100%", thickness=0.5, color=colors.HexColor("#dddddd"), spaceBefore=4, spaceAfter=4)
 
 
 def _render_section(elements: list, title: str, items: list, builder, styles, empty_label: str) -> None:
-    """Ajoute une section (titre + blocs séparés, ou mention 'vide')."""
+    """Adds a section: title plus blocks, or an empty note."""
     elements.append(Paragraph(title, styles["Heading2"]))
     if not items:
         elements.append(Paragraph(empty_label, styles["ItemLine"]))
@@ -271,9 +280,7 @@ def _render_section(elements: list, title: str, items: list, builder, styles, em
 
 
 async def export_client_data_pdf(db: AsyncSession, client_id: int) -> bytes:
-    """RGPD — droit à la portabilité (art. 20), version PDF lisible.
-    Construit un PDF A4 à partir des données structurées de export_client_data.
-    """
+    """Builds an A4 PDF from the data returned by export_client_data."""
     data = await export_client_data(db, client_id)
 
     styles = getSampleStyleSheet()
@@ -290,14 +297,13 @@ async def export_client_data_pdf(db: AsyncSession, client_id: int) -> bytes:
     )
     elements: list = []
 
-    # En-tête
     elements.append(Paragraph("Vos données personnelles", styles["Title"]))
     elements.append(Paragraph(
         f"Export effectué le {date.today().strftime('%d/%m/%Y')} — TradeTrack", styles["Normal"],
     ))
     elements.append(Spacer(1, 8 * mm))
 
-    # Section 1 — informations (tableau Champ / Valeur)
+    # Profile table
     c = data.get("client", {})
     elements.append(Paragraph("Vos informations", styles["Heading2"]))
     info_rows = [
@@ -321,7 +327,7 @@ async def export_client_data_pdf(db: AsyncSession, client_id: int) -> bytes:
     elements.append(table)
     elements.append(Spacer(1, 8 * mm))
 
-    # Sections 2 à 4 — réparations / devis / rendez-vous
+    # Repairs, quotes and appointments
     _render_section(elements, "Vos réparations", data.get("repairs", []), _repair_flowables, styles, "Aucune réparation.")
     _render_section(elements, "Vos devis", data.get("quotes", []), _quote_flowables, styles, "Aucun devis.")
     _render_section(elements, "Vos rendez-vous", data.get("appointments", []), _appointment_flowables, styles, "Aucun rendez-vous.")
@@ -331,11 +337,8 @@ async def export_client_data_pdf(db: AsyncSession, client_id: int) -> bytes:
 
 
 async def anonymize_client(db: AsyncSession, client: Client, user: User | None = None) -> None:
-    """RGPD — droit à l'effacement (art. 17).
-    Anonymise les données personnelles du client tout en conservant les écritures
-    comptables (ventes, devis, réparations) qui ont une obligation de conservation
-    légale de 10 ans en France.
-    """
+    """GDPR art. 17. Personal data is anonymised but accounting records are kept:
+    French law requires them for 10 years."""
     client.first_name = "Anonyme"
     client.last_name = f"#{client.id}"
     client.email = None
@@ -343,13 +346,13 @@ async def anonymize_client(db: AsyncSession, client: Client, user: User | None =
     client.address = None
 
     if user is not None:
-        # On désactive le compte et on rend l'email unique mais non-identifiant
+        # Email stays unique but no longer identifies anyone
         user.is_active = False
         user.email = f"anonymized_{user.id}@tradetrack.fr"
         user.first_name = "Anonyme"
         user.last_name = f"#{user.id}"
         user.phone = None
-        # Vide la demande de suppression → la ligne disparaît de la liste admin.
+        # Clears the request so the row leaves the admin list
         user.deletion_requested_at = None
 
     await db.flush()

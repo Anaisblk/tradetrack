@@ -57,12 +57,16 @@ async def export_my_data(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """RGPD — droit à la portabilité (art. 20).
-    Retourne un PDF lisible contenant toutes les données personnelles de l'utilisateur connecté.
-    """
+    """GDPR right to data portability (art. 20) — PDF export."""
     client = await client_service.get_client_by_user_id(db, current_user.id)
     if not client:
         raise HTTPException(404, "Aucun dossier client associé à votre compte")
+
+    # Blocked here too, not only in the UI, so no empty PDF can ever be generated
+    counts = await client_service.get_client_data_counts(db, client.id)
+    if counts["total"] == 0:
+        raise HTTPException(409, "Aucune donnée à exporter pour le moment.")
+
     pdf_bytes = await client_service.export_client_data_pdf(db, client.id)
     filename = f"mes-donnees-tradetrack-{date.today().isoformat()}.pdf"
     return Response(
@@ -76,8 +80,21 @@ async def export_my_data(
 async def get_me(
     current_user: User = Depends(get_current_user),
 ):
-    """Retourne l'utilisateur connecté (dont l'état de sa demande de suppression RGPD)."""
+    """Current user, including any pending GDPR deletion request."""
     return current_user
+
+
+@router.get("/me/summary")
+async def get_my_data_summary(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Tells the client portal whether there is anything to export."""
+    client = await client_service.get_client_by_user_id(db, current_user.id)
+    if not client:
+        return {"repairs": 0, "quotes": 0, "appointments": 0, "total": 0, "has_data": False}
+    counts = await client_service.get_client_data_counts(db, client.id)
+    return {**counts, "has_data": counts["total"] > 0}
 
 
 @router.post("/me/password", status_code=200)
@@ -86,13 +103,8 @@ async def change_my_password(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Changement de mot de passe par l'utilisateur lui-même.
-
-    Le mot de passe actuel est exigé : c'est ce qui empêche qu'une session laissée
-    ouverte sur un poste partagé suffise à prendre le contrôle du compte. C'est aussi
-    l'étape qui permet à un client de remplacer le mot de passe temporaire que lui a
-    communiqué la boutique.
-    """
+    """The current password is required, so an open session is not enough to take
+    over the account. Also used to replace a temporary password set by the shop."""
     if not verify_password(data.current_password, current_user.hashed_password):
         raise HTTPException(400, "Mot de passe actuel incorrect")
     if data.current_password == data.new_password:
@@ -108,10 +120,8 @@ async def request_my_deletion(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """RGPD — droit à l'effacement (art. 17), workflow avec approbation admin.
-    Le client soumet une demande de suppression ; l'anonymisation effective est
-    déclenchée plus tard par un administrateur (délai maximum 14 jours).
-    """
+    """GDPR right to erasure (art. 17). The client sends a request; an admin
+    triggers the actual anonymisation later (14 days max)."""
     if current_user.deletion_requested_at is not None:
         raise HTTPException(400, "Une demande de suppression est déjà en cours")
     current_user.deletion_requested_at = datetime.now(timezone.utc)

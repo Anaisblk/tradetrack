@@ -12,8 +12,7 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     REDIS_URL: str = "redis://localhost:6379"
 
-    # Origines autorisées à appeler l'API, séparées par des virgules.
-    # En production, y ajouter l'URL du frontend déployé.
+    # Allowed origins, separated by commas. Add the deployed frontend URL in production.
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
 
     STOCK_ALERT_THRESHOLD: int = 3
@@ -21,14 +20,8 @@ class Settings(BaseSettings):
     @field_validator("DATABASE_URL")
     @classmethod
     def _normalize_database_url(cls, url: str) -> str:
-        """Rend exploitable une URL fournie par un hébergeur.
-
-        Les hébergeurs (Render, Heroku, Neon...) distribuent une URL au format
-        `postgresql://...`, parfois `postgres://...`. Or SQLAlchemy en mode asynchrone
-        exige le driver explicite `postgresql+asyncpg://`, et asyncpg ne connaît pas le
-        paramètre `sslmode` (syntaxe psycopg2) : il attend `ssl`. Sans cette
-        normalisation, l'application ne démarre pas une fois déployée.
-        """
+        """Hosting providers give a postgresql:// URL, but async SQLAlchemy needs
+        the asyncpg driver, and asyncpg expects `ssl` instead of `sslmode`."""
         for prefix in ("postgresql+asyncpg://", "postgresql://", "postgres://"):
             if url.startswith(prefix):
                 url = "postgresql+asyncpg://" + url[len(prefix) :]
@@ -37,11 +30,7 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins(self) -> list[str]:
-        """Liste des origines CORS, normalisées.
-
-        Le slash final est retiré car le header `Origin` envoyé par les navigateurs
-        n'en contient jamais : une entrée « https://exemple.fr/ » ne matcherait jamais.
-        """
+        """Trailing slash is removed: the browser Origin header never has one."""
         origins = []
         for origin in self.CORS_ORIGINS.split(","):
             origin = origin.strip().rstrip("/")

@@ -15,12 +15,8 @@ class UserRole(str, Enum):
 
 
 class ApprovalStatus(str, Enum):
-    """Décision de l'administrateur sur une demande de création de compte.
-
-    Distinct de `is_active`, qui reste le verrou de connexion : sans cette colonne, un
-    compte jamais validé et un compte suspendu seraient tous deux `is_active=False`,
-    donc indiscernables dans l'interface d'administration.
-    """
+    """Admin decision on a sign-up request. Kept separate from `is_active` so a
+    pending account can be told apart from a suspended one."""
 
     pending = "pending"
     approved = "approved"
@@ -38,9 +34,8 @@ class User(Base, TimestampMixin):
     last_name: Mapped[str] = mapped_column(String(100), nullable=False)
     phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    # `server_default` : les comptes déjà en base restent valides après la migration.
-    # Le défaut `approved` couvre aussi les comptes créés par un administrateur, qui
-    # sont utilisables immédiatement ; seule l'inscription publique pose `pending`.
+    # server_default keeps existing accounts valid after the migration.
+    # Only public sign-up sets `pending`; accounts created by an admin are approved.
     approval_status: Mapped[str] = mapped_column(
         String(20), nullable=False,
         default=ApprovalStatus.approved, server_default=ApprovalStatus.approved.value,
