@@ -10,6 +10,7 @@ import {
 import { QUERY_KEYS } from '../../api/queryKeys'
 import { formatCurrency } from '../../utils/formatters'
 import Select from '../../components/ui/Select'
+import useMediaQuery, { SM } from '../../hooks/useMediaQuery'
 
 const PERIODS = [
   { value: 'day', label: 'Jour' },
@@ -31,6 +32,10 @@ export default function ReportsPage() {
   const { data: dailyRevenue = [] } = useQuery({ queryKey: QUERY_KEYS.dashboard('repairs-daily-revenue'), queryFn: fetchRepairsDailyRevenue })
   const { data: topDevices = [] } = useQuery({ queryKey: QUERY_KEYS.dashboard('top-devices'), queryFn: () => fetchTopDevices(10) })
 
+  // Recharts dimensionne en JS : l'axe Y doit rétrécir sur mobile, sinon ses libellés
+  // (150px) et la marge (40px) ne laissent quasiment aucune place aux barres.
+  const isWide = useMediaQuery(SM)
+
   const byStatus = Object.fromEntries(breakdown.map((s) => [s.status, s.count]))
   const avgDays = avgDuration?.avg_days
   const topData = topDevices.map((d) => ({
@@ -40,15 +45,15 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-8">
-      <h2 className="text-2xl font-bold">Rapports atelier</h2>
+      <h2 className="text-xl sm:text-2xl font-bold">Rapports atelier</h2>
 
       {/* 3 cartes chiffres */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Carte 1 : réparations terminées + sélecteur de période */}
         <div className="bg-white rounded-xl border p-5 space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm text-gray-500">Réparations terminées</p>
-            <div className="w-32">
+            <div className="w-28 sm:w-32">
               <Select options={PERIODS} value={period} onChange={(e) => setPeriod(e.target.value)} />
             </div>
           </div>
@@ -109,10 +114,10 @@ export default function ReportsPage() {
         <div className="bg-white rounded-xl border p-6 lg:col-span-2">
           <h3 className="font-semibold mb-4">Top 10 des appareils les plus réparés</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={topData} layout="vertical" margin={{ left: 40 }}>
+            <BarChart data={topData} layout="vertical" margin={{ left: isWide ? 40 : 0, right: 8 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis type="number" tick={{ fontSize: 11 }} allowDecimals={false} />
-              <YAxis type="category" dataKey="label" tick={{ fontSize: 11 }} width={150} />
+              <YAxis type="category" dataKey="label" tick={{ fontSize: isWide ? 11 : 9 }} width={isWide ? 150 : 92} />
               <Tooltip />
               <Bar dataKey="count" fill="#6366f1" radius={[0, 4, 4, 0]} />
             </BarChart>

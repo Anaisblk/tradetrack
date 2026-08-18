@@ -153,7 +153,7 @@ export default function NewQuote() {
 
   return (
     <div className="max-w-4xl space-y-6">
-      <h2 className="text-2xl font-bold">Nouveau devis</h2>
+      <h2 className="text-xl sm:text-2xl font-bold">Nouveau devis</h2>
 
       {/* Section 1 : Client */}
       <div className="bg-white rounded-xl border p-6 space-y-4">
@@ -214,7 +214,7 @@ export default function NewQuote() {
 
       {/* Section 3 : Lignes du devis */}
       <div className="bg-white rounded-xl border p-6 space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="font-semibold">Lignes du devis (prix TTC)</h3>
           <Button variant="secondary" onClick={addFreeItem} className="inline-flex items-center gap-1.5">
             <IconPlus size={16} />
@@ -223,7 +223,8 @@ export default function NewQuote() {
         </div>
 
         {items.length > 0 && (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+        <table className="w-full min-w-[520px] text-sm">
             <thead className="text-gray-500 border-b">
               <tr className="text-left">
                 <th className="pb-2">Description</th>
@@ -255,11 +256,12 @@ export default function NewQuote() {
               })}
             </tbody>
           </table>
+        </div>
         )}
 
         {/* Section 4 : Totaux */}
         <div className="flex justify-end">
-          <div className="bg-gray-50 rounded-lg p-4 min-w-48 text-sm space-y-1">
+          <div className="bg-gray-50 rounded-lg p-4 w-full sm:w-auto sm:min-w-48 text-sm space-y-1">
             <div className="flex justify-between"><span className="text-gray-500">HT</span><span>{formatCurrency(totals.total_ht)}</span></div>
             <div className="flex justify-between"><span className="text-gray-500">TVA</span><span>{formatCurrency(totals.tva_amount)}</span></div>
             <div className="flex justify-between font-bold border-t pt-1"><span>TTC</span><span>{formatCurrency(totals.total_ttc)}</span></div>
@@ -270,7 +272,7 @@ export default function NewQuote() {
       {/* Section 5 : Validité et notes */}
       <div className="bg-white rounded-xl border p-6 space-y-4">
         <h3 className="font-semibold">Validité et notes</h3>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input label="Valide jusqu'au" type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} />
         </div>
         <div>

@@ -41,14 +41,15 @@ export default function DeletionRequests() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Demandes de suppression RGPD</h2>
+        <h2 className="text-xl sm:text-2xl font-bold">Demandes de suppression RGPD</h2>
         <p className="text-sm text-gray-500 mt-1">
           Ces demandes doivent être traitées sous 14 jours conformément à notre engagement RGPD.
         </p>
       </div>
 
       <div className="bg-white rounded-xl border overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[640px] text-sm">
           <thead className="bg-gray-50">
             <tr className="text-left text-gray-500">
               <th className="px-4 py-3">ID</th>
@@ -86,6 +87,7 @@ export default function DeletionRequests() {
             })}
           </tbody>
         </table>
+        </div>
       </div>
 
       <Modal

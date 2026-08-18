@@ -161,7 +161,7 @@ export default function ClientSelector({ value, onChange }) {
 
       <Modal isOpen={showModal} onClose={closeModal} title="Nouveau client" size="sm">
         <form onSubmit={handleCreate} className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input
               label="Prénom *"
               value={form.first_name}

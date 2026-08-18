@@ -143,7 +143,7 @@ export default function RepairDetail() {
     <div className="max-w-3xl space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-4">
-          <h2 className="text-2xl font-bold">Réparation #{repair.id}</h2>
+          <h2 className="text-xl sm:text-2xl font-bold">Réparation #{repair.id}</h2>
           <Badge label={REPAIR_STATUS_LABELS[repair.status]} color={getStatusColor(repair.status)} />
         </div>
         <Button onClick={() => setShowQuoteModal(true)} className="inline-flex items-center gap-1.5">
@@ -192,7 +192,7 @@ export default function RepairDetail() {
 
       <div className="bg-white rounded-xl border p-6 space-y-4">
         <h3 className="font-semibold">Détails techniques</h3>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
             label="Coût réparation HT (€)"
             type="number"

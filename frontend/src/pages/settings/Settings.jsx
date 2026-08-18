@@ -44,7 +44,7 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-8 max-w-4xl">
-      <h2 className="text-2xl font-bold">Paramètres</h2>
+      <h2 className="text-xl sm:text-2xl font-bold">Paramètres</h2>
 
       <div className="bg-white rounded-xl border p-6">
         <div className="flex items-center justify-between mb-4">
@@ -54,7 +54,8 @@ export default function SettingsPage() {
             Nouveau
           </Button>
         </div>
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[560px] text-sm">
           <thead className="text-gray-500 border-b">
             <tr className="text-left">
               <th className="pb-2">Nom</th>
@@ -82,11 +83,12 @@ export default function SettingsPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Nouvel utilisateur">
         <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input label="Prénom *" value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} />
             <Input label="Nom *" value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} />
           </div>

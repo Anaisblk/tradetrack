@@ -13,14 +13,14 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' })
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="flex min-h-screen items-start sm:items-center justify-center p-3 sm:p-4">
         <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
-        <div className={`relative bg-white rounded-xl shadow-xl w-full ${sizes[size]} z-10`}>
-          <div className="flex items-center justify-between px-6 py-4 border-b">
-            <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+        <div className={`relative bg-white rounded-xl shadow-xl w-full ${sizes[size]} z-10 my-4 sm:my-8`}>
+          <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b">
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900 min-w-0 break-words">{title}</h2>
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none flex-shrink-0 p-1 -m-1">&times;</button>
           </div>
-          <div className="px-6 py-4">{children}</div>
+          <div className="px-4 sm:px-6 py-4">{children}</div>
         </div>
       </div>
     </div>
