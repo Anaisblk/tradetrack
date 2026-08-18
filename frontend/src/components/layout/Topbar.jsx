@@ -4,9 +4,9 @@ import useAuthStore from '../../store/authStore'
 import useNotificationStore from '../../store/notificationStore'
 import { fetchNotifications, markNotificationRead, markAllRead } from '../../api/notifications'
 import { formatDateTime } from '../../utils/formatters'
-import { IconBell } from '../ui/Icon'
+import { IconBell, IconMenu } from '../ui/Icon'
 
-export default function Topbar() {
+export default function Topbar({ onOpenNav = () => {} }) {
   const { user, clearAuth, accessToken } = useAuthStore()
   const { notifications, unreadCount, setNotifications, markRead } = useNotificationStore()
   const [showNotifs, setShowNotifs] = useState(false)
@@ -46,9 +46,18 @@ export default function Topbar() {
   }
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-10">
-      <h1 className="text-lg font-semibold text-gray-800" />
-      <div className="flex items-center gap-4">
+    <header className="h-16 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between gap-2 sticky top-0 z-20">
+      {/* Ouverture du tiroir de navigation — mobile et tablette uniquement */}
+      <button
+        type="button"
+        onClick={onOpenNav}
+        aria-label="Ouvrir le menu"
+        className="lg:hidden p-2 -ml-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+      >
+        <IconMenu size={22} />
+      </button>
+      <h1 className="text-lg font-semibold text-gray-800 flex-1" />
+      <div className="flex items-center gap-2 sm:gap-4">
         <div className="relative">
           <button
             className="relative p-2 text-slate-500 hover:text-slate-700"
@@ -64,7 +73,7 @@ export default function Topbar() {
           </button>
 
           {showNotifs && (
-            <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border z-50">
+            <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-xl border z-50">
               <div className="flex items-center justify-between px-4 py-3 border-b">
                 <span className="font-semibold text-sm">Notifications</span>
                 <button onClick={handleMarkAll} className="text-xs text-indigo-600">Lire</button>
@@ -90,8 +99,8 @@ export default function Topbar() {
           )}
         </div>
 
-        <span className="text-sm text-slate-600">{user?.first_name}</span>
-        <button onClick={logout} className="text-sm text-slate-500 hover:text-rose-600 transition-colors">Déconnexion</button>
+        <span className="hidden sm:inline text-sm text-slate-600">{user?.first_name}</span>
+        <button onClick={logout} className="text-sm text-slate-500 hover:text-rose-600 transition-colors whitespace-nowrap">Déconnexion</button>
       </div>
     </header>
   )

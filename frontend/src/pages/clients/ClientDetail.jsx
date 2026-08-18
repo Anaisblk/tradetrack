@@ -79,11 +79,11 @@ export default function ClientDetail() {
 
   return (
     <div className="space-y-6 max-w-4xl">
-      <h2 className="text-2xl font-bold">{client.first_name} {client.last_name}</h2>
+      <h2 className="text-xl sm:text-2xl font-bold">{client.first_name} {client.last_name}</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl border p-6 space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <h3 className="font-semibold text-gray-700">Informations</h3>
             <button
               onClick={openEdit}
@@ -109,7 +109,8 @@ export default function ClientDetail() {
             Aucune réparation pour ce client.
           </p>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+        <table className="w-full min-w-[520px] text-sm">
             <thead className="text-gray-500 border-b">
               <tr className="text-left">
                 <th className="pb-2">N°</th>
@@ -146,12 +147,13 @@ export default function ClientDetail() {
               ))}
             </tbody>
           </table>
+        </div>
         )}
       </div>
 
       <Modal isOpen={showModal} onClose={closeModal} title="Modifier le client" size="sm">
         <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input label="Prénom *" value={form.first_name} onChange={set('first_name')} autoFocus />
             <Input label="Nom *" value={form.last_name} onChange={set('last_name')} />
           </div>

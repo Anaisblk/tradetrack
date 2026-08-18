@@ -115,12 +115,13 @@ export default function RepairQuoteForm({ repair, onCancel, onSuccess, cancelLab
           </button>
         </div>
 
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[520px] text-sm">
           <thead className="text-gray-500 border-b">
             <tr className="text-left">
               <th className="pb-2">Description</th>
               <th className="pb-2 w-20">Qté</th>
-              <th className="pb-2 w-32">Prix unitaire TTC</th>
+              <th className="pb-2 w-32 whitespace-nowrap">Prix unitaire TTC</th>
               <th className="pb-2 w-8"></th>
             </tr>
           </thead>
@@ -152,10 +153,11 @@ export default function RepairQuoteForm({ repair, onCancel, onSuccess, cancelLab
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       <div className="flex justify-end">
-        <div className="bg-gray-50 rounded-lg p-4 min-w-56 text-sm space-y-1">
+        <div className="bg-gray-50 rounded-lg p-4 w-full sm:w-auto sm:min-w-56 text-sm space-y-1">
           <div className="flex justify-between"><span className="text-gray-500">Total HT</span><span>{formatCurrency(totals.total_ht)}</span></div>
           <div className="flex justify-between"><span className="text-gray-500">TVA</span><span>{formatCurrency(totals.tva_amount)}</span></div>
           <div className="flex justify-between font-bold text-base border-t pt-1"><span>Total TTC</span><span>{formatCurrency(totals.total_ttc)}</span></div>

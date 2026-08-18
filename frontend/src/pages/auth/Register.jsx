@@ -39,7 +39,7 @@ export default function RegisterPage() {
           <p className="text-gray-500 mt-1">Créer votre compte client</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input label="Prénom" autoComplete="given-name" value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} required />
             <Input label="Nom" autoComplete="family-name" value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} required />
           </div>

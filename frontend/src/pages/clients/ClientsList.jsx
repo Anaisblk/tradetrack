@@ -8,10 +8,14 @@ import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Modal from '../../components/ui/Modal'
 import SortableHeader from '../../components/ui/SortableHeader'
+import MobileSortSelect from '../../components/ui/MobileSortSelect'
 import Pagination from '../../components/ui/Pagination'
 import { IconPlus, IconPencil } from '../../components/ui/Icon'
 
 const EMPTY_FORM = { first_name: '', last_name: '', phone: '', email: '', address: '' }
+
+// Mêmes champs que les SortableHeader du tableau, pour le tri en vue cartes.
+const SORT_FIELDS = [{ label: 'Nom', field: 'name' }]
 
 export default function ClientsList() {
   const [search, setSearch] = useState('')
@@ -112,8 +116,8 @@ export default function ClientsList() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Clients</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-xl sm:text-2xl font-bold">Clients</h2>
         <Button onClick={() => setShowCreateModal(true)} className="inline-flex items-center gap-1.5">
           <IconPlus size={16} />
           Nouveau
@@ -124,8 +128,33 @@ export default function ClientsList() {
         <Input placeholder="Rechercher..." value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
 
+      <MobileSortSelect className="md:hidden" fields={SORT_FIELDS} sort={sort} onSort={handleSort} />
+
       <div className="bg-white rounded-xl border overflow-hidden">
-        <table className="w-full text-sm">
+        {/* Mobile : cartes. Le tableau reprend la main à partir de `md`. */}
+        <div className="md:hidden divide-y">
+          {isLoading ? (
+            <p className="text-center py-8 text-gray-400 text-sm">Chargement...</p>
+          ) : clients.length === 0 ? (
+            <p className="text-center py-8 text-gray-400 text-sm">Aucun client</p>
+          ) : clients.map((c) => (
+            <div key={c.id} className="p-4">
+              <p className="font-medium break-words">{c.first_name} {c.last_name}</p>
+              <p className="text-sm text-gray-600 mt-1">{c.phone || '—'}</p>
+              <p className="text-sm text-gray-600 break-all">{c.email || '—'}</p>
+              <div className="flex items-center gap-4 mt-3">
+                <Link to={`/clients/${c.id}`} className="text-indigo-600 hover:underline text-sm py-1">Voir</Link>
+                <button onClick={() => openEdit(c)} className="inline-flex items-center gap-1 text-gray-500 hover:text-gray-800 text-sm py-1">
+                  <IconPencil size={14} />
+                  Modifier
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full min-w-[520px] text-sm">
           <thead className="bg-gray-50">
             <tr className="text-left text-gray-500">
               <SortableHeader label="Nom" field="name" sort={sort} onSort={handleSort} />
@@ -155,6 +184,7 @@ export default function ClientsList() {
             ))}
           </tbody>
         </table>
+        </div>
         <Pagination
           page={page}
           pageSize={pageSize}
@@ -168,7 +198,7 @@ export default function ClientsList() {
       {/* Modale création */}
       <Modal isOpen={showCreateModal} onClose={() => { setShowCreateModal(false); setCreateForm(EMPTY_FORM) }} title="Nouveau client">
         <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input label="Prénom *" value={createForm.first_name} onChange={setCreate('first_name')} />
             <Input label="Nom *" value={createForm.last_name} onChange={setCreate('last_name')} />
           </div>
@@ -185,7 +215,7 @@ export default function ClientsList() {
       {/* Modale édition */}
       <Modal isOpen={!!editTarget} onClose={closeEdit} title={editTarget ? `Modifier — ${editTarget.first_name} ${editTarget.last_name}` : ''} size="sm">
         <form onSubmit={handleEditSubmit} className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input label="Prénom *" value={editForm.first_name} onChange={setEdit('first_name')} autoFocus />
             <Input label="Nom *" value={editForm.last_name} onChange={setEdit('last_name')} />
           </div>

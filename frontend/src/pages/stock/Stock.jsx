@@ -9,6 +9,7 @@ import Select from '../../components/ui/Select'
 import Modal from '../../components/ui/Modal'
 import Badge from '../../components/ui/Badge'
 import SortableHeader from '../../components/ui/SortableHeader'
+import MobileSortSelect from '../../components/ui/MobileSortSelect'
 import Pagination from '../../components/ui/Pagination'
 import { IconPlus, IconPencil } from '../../components/ui/Icon'
 import { formatCurrency } from '../../utils/formatters'
@@ -22,6 +23,14 @@ const EMPTY_FORM = {
   stock_quantity: 0,
   condition: 'neuf',
 }
+
+// Mêmes champs que les SortableHeader du tableau, pour le tri en vue cartes.
+const SORT_FIELDS = [
+  { label: 'Produit', field: 'name' },
+  { label: 'Catégorie', field: 'category' },
+  { label: 'Prix vente TTC', field: 'selling_price' },
+  { label: 'Stock', field: 'stock_quantity' },
+]
 
 export default function StockPage() {
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -156,8 +165,8 @@ export default function StockPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Pièces détachées</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-xl sm:text-2xl font-bold">Pièces détachées</h2>
         <Button onClick={() => setShowCreateModal(true)} className="inline-flex items-center gap-1.5">
           <IconPlus size={16} />
           Nouveau
@@ -168,8 +177,37 @@ export default function StockPage() {
         <Input placeholder="Rechercher un produit..." value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
 
+      <MobileSortSelect className="md:hidden" fields={SORT_FIELDS} sort={sort} onSort={handleSort} />
+
       <div className="bg-white rounded-xl border overflow-hidden">
-        <table className="w-full text-sm">
+        {/* Mobile : cartes. Le tableau reprend la main à partir de `md`. */}
+        <div className="md:hidden divide-y">
+          {products.length === 0 ? (
+            <p className="text-center py-8 text-gray-400 text-sm">Aucun produit</p>
+          ) : products.map((p) => (
+            <div key={p.id} className="p-4">
+              <div className="flex items-start justify-between gap-3">
+                <p className="font-medium break-words">{p.name}</p>
+                <Badge label={p.condition} color={p.condition === 'neuf' ? 'blue' : 'gray'} />
+              </div>
+              <p className="text-sm text-gray-500 mt-1">{p.category?.name || '—'}</p>
+              <div className="flex items-center justify-between gap-3 mt-2 text-sm">
+                <span className="font-medium">{formatCurrency(p.selling_price)}</span>
+                <span className="text-gray-500">{p.condition === 'occasion' ? 'TVM' : 'TVA'}</span>
+                <span className={p.stock_quantity < 3 ? 'text-red-600 font-bold' : ''}>
+                  Stock : {p.stock_quantity}
+                </span>
+              </div>
+              <button onClick={() => openEdit(p)} className="inline-flex items-center gap-1 text-gray-500 hover:text-gray-800 text-sm mt-3 py-1">
+                <IconPencil size={14} />
+                Modifier
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full min-w-[720px] text-sm">
           <thead className="bg-gray-50">
             <tr className="text-left text-gray-500">
               <SortableHeader label="Produit" field="name" sort={sort} onSort={handleSort} />
@@ -204,6 +242,7 @@ export default function StockPage() {
             ))}
           </tbody>
         </table>
+        </div>
         <Pagination
           page={page}
           pageSize={pageSize}
@@ -217,8 +256,8 @@ export default function StockPage() {
       {/* Modale création */}
       <Modal isOpen={showCreateModal} onClose={closeCreate} title="Nouveau produit" size="lg">
         <form onSubmit={handleCreate} className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="Nom *" className="col-span-2" value={form.name} onChange={setCreateField('name')} autoFocus />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Input label="Nom *" className="sm:col-span-2" value={form.name} onChange={setCreateField('name')} autoFocus />
             <Select label="Catégorie" options={catOptions} value={form.category_id} onChange={setCreateField('category_id')} />
             <Input label="Code-barres" value={form.barcode} onChange={setCreateField('barcode')} />
             <Input label={priceLabels(form.condition).purchase} type="number" step="0.01" value={form.purchase_price} onChange={setCreateField('purchase_price')} />
@@ -248,8 +287,8 @@ export default function StockPage() {
       {/* Modale édition */}
       <Modal isOpen={!!editTarget} onClose={closeEdit} title={editTarget ? `Modifier — ${editTarget.name}` : ''} size="lg">
         <form onSubmit={handleEdit} className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="Nom *" className="col-span-2" value={editForm.name} onChange={setEditField('name')} autoFocus />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Input label="Nom *" className="sm:col-span-2" value={editForm.name} onChange={setEditField('name')} autoFocus />
             <Select label="Catégorie" options={catOptions} value={editForm.category_id} onChange={setEditField('category_id')} />
             <Input label="Code-barres" value={editForm.barcode} onChange={setEditField('barcode')} />
             <Input label={priceLabels(editForm.condition).purchase} type="number" step="0.01" value={editForm.purchase_price} onChange={setEditField('purchase_price')} />

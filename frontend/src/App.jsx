@@ -79,10 +79,10 @@ export default function App() {
         path="/portal"
         element={
           <ClientPortalRoute>
-            <div className="min-h-screen bg-gray-50 p-6">
+            <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
               <div className="max-w-4xl mx-auto space-y-6">
-                <div className="flex items-center justify-between">
-                  <h1 className="text-2xl font-bold">Mon espace client</h1>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <h1 className="text-xl sm:text-2xl font-bold">Mon espace client</h1>
                   <div className="flex items-center gap-4">
                     {user && (
                       <span className="text-sm text-gray-600">

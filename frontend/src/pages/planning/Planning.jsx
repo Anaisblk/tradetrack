@@ -78,8 +78,8 @@ export default function PlanningPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Planning</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-xl sm:text-2xl font-bold">Planning</h2>
         <Button onClick={() => setShowModal(true)} className="inline-flex items-center gap-1.5">
           <IconPlus size={16} />
           Nouveau
@@ -87,7 +87,8 @@ export default function PlanningPage() {
       </div>
 
       <div className="bg-white rounded-xl border overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[640px] text-sm">
           <thead className="bg-gray-50">
             <tr className="text-left text-gray-500">
               <th className="px-4 py-3">Titre</th>
@@ -115,6 +116,7 @@ export default function PlanningPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       <Modal isOpen={showModal} onClose={closeModal} title="Nouveau rendez-vous">
@@ -123,7 +125,7 @@ export default function PlanningPage() {
 
           <ClientSelector value={client} onChange={setClient} />
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Input label="Date *" type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
             <Select label="Heure début *" options={START_OPTIONS} value={form.start_time} onChange={(e) => setForm({ ...form, start_time: e.target.value })} />
             <Select label="Heure fin *" options={END_OPTIONS} value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })} />

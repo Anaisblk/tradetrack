@@ -221,7 +221,7 @@ export default function NewRepair() {
 
   return (
     <div className="max-w-3xl space-y-6">
-      <h2 className="text-2xl font-bold">Nouvelle réparation</h2>
+      <h2 className="text-xl sm:text-2xl font-bold">Nouvelle réparation</h2>
 
       {fromQuote && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-2 text-sm text-yellow-800">
@@ -286,7 +286,7 @@ export default function NewRepair() {
       {/* Section 3 : Défauts signalés */}
       <div className="bg-white rounded-xl border p-6 space-y-4">
         <h3 className="font-semibold">Défauts signalés par le client</h3>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           {DEFECTS.map((d) => (
             <label key={d} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
               <input
@@ -325,7 +325,7 @@ export default function NewRepair() {
       {/* Section 5 : Estimation (facultative) */}
       <div className="bg-white rounded-xl border p-6 space-y-4">
         <h3 className="font-semibold">Estimation (facultative)</h3>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
             label="Coût estimé (€)"
             type="number"
