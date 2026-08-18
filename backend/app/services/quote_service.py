@@ -49,8 +49,6 @@ async def list_quotes_paginated(
     order_dir: str = "asc",
 ) -> tuple[list[Quote], int]:
     needs_client_join = bool(search)
-
-    # Total
     count_q = select(func.count(Quote.id))
     if needs_client_join:
         count_q = count_q.outerjoin(Client, Quote.client_id == Client.id)
@@ -60,8 +58,6 @@ async def list_quotes_paginated(
             or_(Client.first_name.ilike(pattern), Client.last_name.ilike(pattern))
         )
     total = (await db.execute(count_q)).scalar_one()
-
-    # Items
     q = (
         select(Quote)
         .options(selectinload(Quote.client))
@@ -86,12 +82,8 @@ async def list_quotes_paginated(
 
 
 async def _compute_item_amounts(db: AsyncSession, item) -> tuple[float, float, float, float, float]:
-    """Retourne (subtotal_ht, subtotal_tva, subtotal_ttc, unit_ht_stored, tva_rate_stored).
-
-    Tous les prix saisis sont en TTC.
-    - Produit d'occasion : TVA sur marge (TVM).
-    - Sinon (neuf ou ligne libre) : TVA classique extraite du TTC.
-    """
+    """New item or free line: VAT is extracted from the price.
+    Second-hand item: VAT applies to the margin only (sale price - purchase price)."""
     qty = item.quantity
     unit_ttc = float(item.unit_price_ht)
 
@@ -109,7 +101,7 @@ async def _compute_item_amounts(db: AsyncSession, item) -> tuple[float, float, f
         unit_ht_stored = round(subtotal_ht / qty, 2) if qty else 0.0
         return subtotal_ht, subtotal_tva, subtotal_ttc, unit_ht_stored, 20.0
 
-    # Neuf ou ligne libre : prix saisi en TTC, TVA extraite
+    # New item or free line: price is incl. VAT, so VAT is extracted from it
     tva_rate = float(item.tva_rate)
     subtotal_ttc = round(qty * unit_ttc, 2)
     subtotal_tva = round(subtotal_ttc * tva_rate / (100 + tva_rate), 2)
@@ -141,7 +133,7 @@ async def _persist_items(db: AsyncSession, quote: Quote, items_data: list) -> tu
 
 
 async def create_quote(db: AsyncSession, data: QuoteCreate, created_by_id: int) -> Quote:
-    # Validité par défaut : 30 jours à compter d'aujourd'hui si non fournie.
+    # Quotes are valid 30 days by default
     valid_until = data.valid_until
     if valid_until is None:
         valid_until = date.today() + timedelta(days=30)

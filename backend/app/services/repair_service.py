@@ -62,8 +62,6 @@ async def list_repairs_paginated(
     order_dir: str = "asc",
 ) -> tuple[list[Repair], int]:
     needs_client_join = bool(search)
-
-    # Total
     count_q = select(func.count(Repair.id))
     if needs_client_join:
         count_q = count_q.outerjoin(Client, Repair.client_id == Client.id)
@@ -73,8 +71,6 @@ async def list_repairs_paginated(
             or_(Client.first_name.ilike(pattern), Client.last_name.ilike(pattern))
         )
     total = (await db.execute(count_q)).scalar_one()
-
-    # Items
     q = (
         select(Repair)
         .options(selectinload(Repair.client))
@@ -149,11 +145,11 @@ async def update_repair(db: AsyncSession, repair: Repair, data: RepairUpdate, cu
                 raise HTTPException(status_code=400, detail=f"Stock insuffisant pour {product.name}")
 
             qty = item_data.quantity
-            # Tous les prix saisis sont en TTC.
+            # All prices are entered incl. VAT
             unit_ttc = float(item_data.unit_price_ht) if item_data.unit_price_ht else float(product.selling_price)
 
             if product.condition == "occasion":
-                # TVA sur marge (TVM)
+                # VAT on margin for second-hand parts
                 subtotal_ttc = round(qty * unit_ttc, 2)
                 purchase_ttc = round(qty * float(product.purchase_price), 2)
                 margin = max(0.0, subtotal_ttc - purchase_ttc)
@@ -161,7 +157,7 @@ async def update_repair(db: AsyncSession, repair: Repair, data: RepairUpdate, cu
                 subtotal_ht = round(subtotal_ttc - subtotal_tva, 2)
                 unit_ht_stored = round(subtotal_ht / qty, 2) if qty else 0.0
             else:
-                # Neuf : TVA extraite du TTC
+                # New part: VAT extracted from the price
                 subtotal_ttc = round(qty * unit_ttc, 2)
                 unit_ht_stored = round(unit_ttc / 1.20, 2)
 

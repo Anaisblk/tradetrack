@@ -68,7 +68,7 @@ async def approve_user(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(require_admin),
 ):
-    """Valide une demande de création de compte : le client peut désormais se connecter."""
+    """Approves a sign-up request so the client can log in."""
     user = await user_service.get_user_by_id(db, user_id)
     if not user:
         raise HTTPException(404, "Utilisateur introuvable")
@@ -96,7 +96,7 @@ async def reject_user(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(require_admin),
 ):
-    """Refuse une demande. Le compte est conservé — la décision reste réversible."""
+    """Rejects a request. The account is kept, so the decision can be reversed."""
     user = await user_service.get_user_by_id(db, user_id)
     if not user:
         raise HTTPException(404, "Utilisateur introuvable")

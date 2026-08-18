@@ -15,8 +15,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 async def login(form: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     user = await user_service.authenticate_user(db, form.username, form.password)
     if not user:
-        # Un compte en attente ou refusé échoue aussi ici (is_active=False). Sans message
-        # dédié, le client croirait s'être trompé de mot de passe et réessaierait sans fin.
+        # Pending and rejected accounts also land here, so they get a clearer message.
         pending = await user_service.get_user_by_email(db, form.username)
         if pending and pending.approval_status == ApprovalStatus.pending:
             raise HTTPException(
@@ -42,8 +41,7 @@ async def register(data: UserCreate, db: AsyncSession = Depends(get_db)):
     data.role = UserRole.client
 
     user = await user_service.create_user(db, data)
-    # Le compte attend la validation d'un administrateur : `is_active=False` suffit à
-    # bloquer la connexion (authenticate_user et get_current_user le vérifient déjà).
+    # Account must be approved by an admin before login
     user.approval_status = ApprovalStatus.pending
     user.is_active = False
     await db.flush()

@@ -15,7 +15,7 @@ async def get_today(db: AsyncSession) -> DashboardToday:
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     today_end = today_start + timedelta(days=1)
 
-    # Recettes des réparations clôturées aujourd'hui (completed_date est un date)
+    # Revenue comes from repairs closed today
     today_date = now.date()
     result = await db.execute(
         select(func.count(Repair.id), func.coalesce(func.sum(Repair.repair_cost_ttc), 0))
@@ -34,7 +34,7 @@ async def get_today(db: AsyncSession) -> DashboardToday:
     )
     repairs_in_progress = result.scalar()
 
-    # Appointments today (with correct timezone comparison)
+    # Appointments today
     from app.models.appointment import Appointment
     result = await db.execute(
         select(func.count(Appointment.id)).where(
@@ -64,7 +64,7 @@ async def get_monthly(db: AsyncSession) -> DashboardMonthly:
     month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     next_month = (month_start + timedelta(days=32)).replace(day=1)
 
-    # Recettes des réparations clôturées ce mois-ci (completed_date est un date)
+    # Revenue for the current month
     result = await db.execute(
         select(func.coalesce(func.sum(Repair.repair_cost_ttc), 0))
         .where(
@@ -87,7 +87,7 @@ async def get_monthly(db: AsyncSession) -> DashboardMonthly:
     )
     new_clients = result.scalar() or 0
 
-    # Recettes quotidiennes des 30 derniers jours, sur les réparations clôturées
+    # Daily revenue over the last 30 days
     since = now - timedelta(days=30)
     result = await db.execute(
         select(
@@ -112,14 +112,14 @@ async def get_annual(db: AsyncSession) -> DashboardAnnual:
     now = datetime.now(timezone.utc)
     year_start = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
 
-    # Recettes des réparations clôturées cette année (completed_date est un date)
+    # Revenue for the current year
     result = await db.execute(
         select(func.count(Repair.id), func.coalesce(func.sum(Repair.repair_cost_ttc), 0))
         .where(Repair.completed_date >= year_start.date(), Repair.status == "repare")
     )
     repairs_count, revenue = result.one()
 
-    # Recettes mensuelles des réparations clôturées
+    # Monthly revenue
     month_expr = func.date_trunc("month", Repair.completed_date)
     result = await db.execute(
         select(
@@ -139,17 +139,17 @@ async def get_annual(db: AsyncSession) -> DashboardAnnual:
     )
 
 
-# ===== Stats atelier (réparations) =====
+# ===== Repair stats =====
 
 def _repairs_period_start(period: str, today: date) -> date:
-    """Borne de début (incluse) pour une période donnée, sur completed_date."""
+    """Start date of the given period, used on completed_date."""
     if period == "day":
         return today
     if period == "week":
-        return today - timedelta(days=today.weekday())  # lundi de la semaine courante
+        return today - timedelta(days=today.weekday())  # monday of the current week
     if period == "year":
         return today.replace(month=1, day=1)
-    # défaut : mois
+    # default: month
     return today.replace(day=1)
 
 

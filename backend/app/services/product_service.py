@@ -12,16 +12,14 @@ PRODUCT_SORT_FIELDS = {
     "selling_price": Product.selling_price,
     "stock_quantity": Product.stock_quantity,
     "created_at": Product.created_at,
-    # category is handled separately (requires join)
 }
 
 
-TVA_RATE = 20.0  # Taux unique. Pour l'occasion, le régime applicable est la TVA sur marge.
+TVA_RATE = 20.0  # Single rate. Second-hand goods use VAT on margin instead.
 
 
 def compute_tva_rate(condition: str) -> float:
-    # Le taux reste 20 % dans tous les cas ; pour l'occasion (régime de la marge),
-    # la TVA est appliquée sur la marge (vente − achat), pas sur le prix total.
+    # Rate is always 20%, but second-hand goods are taxed on the margin only
     return TVA_RATE
 
 
@@ -56,8 +54,6 @@ async def list_products_paginated(
     category_type: str | None = None,
 ) -> tuple[list[Product], int]:
     needs_category_join = bool(search) or order_by == "category" or bool(category_type)
-
-    # Total
     count_q = select(func.count(Product.id))
     if needs_category_join:
         count_q = count_q.outerjoin(Category, Product.category_id == Category.id)
@@ -73,8 +69,6 @@ async def list_products_paginated(
     if category_type:
         count_q = count_q.where(Category.type == category_type)
     total = (await db.execute(count_q)).scalar_one()
-
-    # Items
     q = select(Product).options(selectinload(Product.category))
     if needs_category_join:
         q = q.outerjoin(Category, Product.category_id == Category.id)

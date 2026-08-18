@@ -37,7 +37,7 @@ class UserResponse(UserBase):
 
 
 class PasswordChange(BaseModel):
-    """Changement de mot de passe par l'utilisateur lui-même."""
+    """Password change done by the user."""
 
     current_password: str
     new_password: str = Field(min_length=6)

@@ -1,12 +1,6 @@
-"""Script de seed massif pour TradeTrack (démo / tests volumétriques).
+"""Large demo dataset: random but realistic clients, products and repairs.
+Cumulative — running it again adds a new batch instead of replacing anything.
 
-Génère 100-200 enregistrements par catégorie (clients, produits, réparations) avec des
-données aléatoires mais réalistes. Mode cumulatif : ne supprime rien, ajoute aux
-données existantes.
-
-Usage :
-    cd backend && python seed_demo.py
-    # ou via Docker :
     docker compose exec backend python seed_demo.py
 """
 import asyncio
@@ -29,12 +23,12 @@ from app.models.repair import Repair, RepairItem
 from app.models.user import User, UserRole
 
 
-# === Volumes par défaut ===
+# === Default volumes ===
 NB_CLIENTS = 150
 NB_PRODUCTS = 150
 NB_REPAIRS = 200
 
-# === Listes de noms / mots / modèles ===
+# === Name and model lists ===
 PRENOMS = [
     "Lucas", "Léa", "Hugo", "Emma", "Jules", "Chloé", "Louis", "Manon", "Gabriel", "Inès",
     "Arthur", "Camille", "Adam", "Sarah", "Raphaël", "Lina", "Nathan", "Anaïs", "Maxime", "Jade",
@@ -78,7 +72,7 @@ VILLES = ["Paris", "Lyon", "Marseille", "Toulouse", "Nice", "Nantes", "Strasbour
 RUES = ["Rue de la Paix", "Avenue Victor Hugo", "Rue du Commerce", "Boulevard Saint-Michel", "Rue Lafayette",
         "Avenue des Champs-Élysées", "Rue de Rivoli", "Boulevard Haussmann", "Rue Saint-Honoré", "Avenue Foch"]
 
-# Modèles par catégorie
+# Models grouped by category
 PRODUCTS_BY_CATEGORY = {
     "Téléphone": [
         ("iPhone 15 Pro Max", 1200, 1599), ("iPhone 15 Pro", 1000, 1299), ("iPhone 15", 800, 999),
@@ -214,15 +208,15 @@ async def seed_clients(db, n):
 async def seed_products(db, n, admin_id, categories):
     barcodes = await existing_barcodes(db)
     products = []
-    # On répartit ~uniformément sur les catégories
+    # Spread more or less evenly across categories
     cat_names = list(PRODUCTS_BY_CATEGORY.keys())
     for _ in range(n):
         cat_name = random.choice(cat_names)
         name, min_price, max_price = random.choice(PRODUCTS_BY_CATEGORY[cat_name])
-        # Petite variation sur le nom pour les différencier en cas de doublon (référence interne)
+        # Small name variation to avoid duplicates
         suffix = "" if random.random() > 0.3 else f" ({random.choice(['Noir', 'Blanc', 'Bleu', 'Gris', 'Rose'])})"
         condition = "occasion" if random.random() < 0.15 else "neuf"
-        # En TTC
+        # Prices incl. VAT
         selling = round(random.uniform(min_price, max_price), 2)
         purchase = round(selling * random.uniform(0.55, 0.75), 2)
         p = Product(
@@ -243,11 +237,8 @@ async def seed_products(db, n, admin_id, categories):
 
 
 async def seed_repairs(db, n, technicien_id, products, clients):
-    """Génère n réparations avec 0 à 3 pièces consommées chacune.
-
-    Les montants sont pré-calculés (TVA 20 % classique) ; on n'appelle pas le service
-    métier pour ne pas déclencher les mouvements de stock ni les notifications.
-    """
+    """Generates n repairs with 0 to 3 parts each. Amounts are pre-computed and the
+    business service is skipped, to avoid stock movements and notifications."""
     repairs = []
     total_items = 0
     statuses = ["repare"] * 7 + ["en_cours"] * 2 + ["recu"] * 1
@@ -274,8 +265,7 @@ async def seed_repairs(db, n, technicien_id, products, clients):
             tva_amount=0.0,
             repair_cost_ttc=0.0,
         )
-        # Une réparation clôturée porte une date de clôture dans les 90 derniers jours :
-        # c'est elle qui alimente le chiffre d'affaires du tableau de bord.
+        # Closed repairs get a date in the last 90 days: this feeds the dashboard revenue
         if status == "repare":
             repair.completed_date = date.today() - timedelta(days=random.randint(0, 90))
         db.add(repair)
@@ -324,7 +314,7 @@ async def main():
             products = await seed_products(db, NB_PRODUCTS, admin.id, categories)
             print(f"  ✓ {len(products)} produits créés")
 
-            # Pour les ventes, on a besoin de tous les produits/clients (existants + nouveaux)
+            # Use every product and client, existing ones included
             all_products = (await db.execute(select(Product))).scalars().all()
             all_clients = (await db.execute(select(Client))).scalars().all()
 

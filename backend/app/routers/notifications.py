@@ -46,8 +46,7 @@ async def mark_all_read(
 
 @router.get("/stream")
 async def notification_stream(token: str = Query(...)):
-    # EventSource du navigateur ne permet pas d'envoyer des headers personnalisés,
-    # donc l'authentification se fait via le token passé en query string.
+    # EventSource cannot send custom headers, so the token goes in the query string
     payload = decode_token(token)
     if not payload:
         raise HTTPException(status_code=401, detail="Token invalide")
