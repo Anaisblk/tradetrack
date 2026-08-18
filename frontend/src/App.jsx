@@ -19,6 +19,7 @@ import ReportsPage from './pages/reports/Reports'
 import SettingsPage from './pages/settings/Settings'
 import DeletionRequests from './pages/admin/DeletionRequests'
 import MyData from './pages/client-portal/MyData'
+import MyAccount from './pages/client-portal/MyAccount'
 
 function ProtectedRoute({ children }) {
   const user = useAuthStore((s) => s.user)
@@ -97,6 +98,7 @@ export default function App() {
                 <nav className="flex gap-1 border-b border-gray-200">
                   {[
                     { to: 'data', label: 'Mes données' },
+                    { to: 'account', label: 'Mon compte' },
                   ].map(({ to, label }) => (
                     <NavLink
                       key={to}
@@ -121,6 +123,7 @@ export default function App() {
       >
         <Route index element={<Navigate to="data" />} />
         <Route path="data" element={<MyData />} />
+        <Route path="account" element={<MyAccount />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" />} />

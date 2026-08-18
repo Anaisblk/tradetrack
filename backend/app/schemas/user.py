@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from app.models.user import UserRole
+from app.models.user import ApprovalStatus, UserRole
 
 
 class UserBase(BaseModel):
@@ -32,7 +32,15 @@ class UserResponse(UserBase):
 
     id: int
     is_active: bool
+    approval_status: ApprovalStatus = ApprovalStatus.approved
     deletion_requested_at: datetime | None = None
+
+
+class PasswordChange(BaseModel):
+    """Changement de mot de passe par l'utilisateur lui-même."""
+
+    current_password: str
+    new_password: str = Field(min_length=6)
 
 
 class Token(BaseModel):

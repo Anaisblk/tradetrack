@@ -5,11 +5,12 @@ from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_current_user, require_vendeur_or_admin
+from app.core.security import hash_password, verify_password
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.client import ClientCreate, ClientResponse, ClientUpdate
 from app.schemas.pagination import PaginatedClients
-from app.schemas.user import UserResponse
+from app.schemas.user import PasswordChange, UserResponse
 from app.services import client_service
 
 router = APIRouter(prefix="/clients", tags=["Clients"])
@@ -77,6 +78,29 @@ async def get_me(
 ):
     """Retourne l'utilisateur connecté (dont l'état de sa demande de suppression RGPD)."""
     return current_user
+
+
+@router.post("/me/password", status_code=200)
+async def change_my_password(
+    data: PasswordChange,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Changement de mot de passe par l'utilisateur lui-même.
+
+    Le mot de passe actuel est exigé : c'est ce qui empêche qu'une session laissée
+    ouverte sur un poste partagé suffise à prendre le contrôle du compte. C'est aussi
+    l'étape qui permet à un client de remplacer le mot de passe temporaire que lui a
+    communiqué la boutique.
+    """
+    if not verify_password(data.current_password, current_user.hashed_password):
+        raise HTTPException(400, "Mot de passe actuel incorrect")
+    if data.current_password == data.new_password:
+        raise HTTPException(400, "Le nouveau mot de passe doit être différent de l'actuel")
+
+    current_user.hashed_password = hash_password(data.new_password)
+    await db.commit()
+    return {"message": "Mot de passe modifié"}
 
 
 @router.post("/me/request-deletion", status_code=200)
