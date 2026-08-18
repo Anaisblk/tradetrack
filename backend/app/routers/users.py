@@ -3,9 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import require_admin
 from app.db.session import get_db
-from app.models.user import User
+from app.models.user import ApprovalStatus, User
 from app.schemas.user import UserCreate, UserResponse, UserUpdate
-from app.services import user_service
+from app.services import notification_service, user_service
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -60,3 +60,50 @@ async def delete_user(
         raise HTTPException(404, "Utilisateur introuvable")
     user.is_active = False
     await db.commit()
+
+
+@router.post("/{user_id}/approve", response_model=UserResponse)
+async def approve_user(
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_admin),
+):
+    """Valide une demande de création de compte : le client peut désormais se connecter."""
+    user = await user_service.get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(404, "Utilisateur introuvable")
+    if user.approval_status == ApprovalStatus.approved:
+        raise HTTPException(400, "Ce compte est déjà validé")
+
+    user.approval_status = ApprovalStatus.approved
+    user.is_active = True
+    await db.flush()
+
+    await notification_service.create_notification(
+        db,
+        user_id=user.id,
+        type="compte_valide",
+        title="Compte validé",
+        message="Votre compte a été validé, vous pouvez désormais vous connecter.",
+    )
+    await db.commit()
+    return user
+
+
+@router.post("/{user_id}/reject", response_model=UserResponse)
+async def reject_user(
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_admin),
+):
+    """Refuse une demande. Le compte est conservé — la décision reste réversible."""
+    user = await user_service.get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(404, "Utilisateur introuvable")
+    if user.approval_status != ApprovalStatus.pending:
+        raise HTTPException(400, "Seule une demande en attente peut être refusée")
+
+    user.approval_status = ApprovalStatus.rejected
+    user.is_active = False
+    await db.commit()
+    return user

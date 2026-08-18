@@ -22,7 +22,7 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       await register(form)
-      toast.success('Compte créé ! Vous pouvez vous connecter.')
+      toast.success('Compte créé. Un administrateur doit le valider avant votre première connexion.')
       navigate('/login')
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Inscription échouée')

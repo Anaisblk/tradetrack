@@ -10,6 +10,7 @@ export const updateClient = (id, data) => api.put(`/clients/${id}`, data).then((
 export const fetchMe = () => api.get('/clients/me').then((r) => r.data)
 export const exportMyData = () => api.get('/clients/me/export', { responseType: 'blob' }).then((r) => r.data)
 export const requestMyDeletion = () => api.post('/clients/me/request-deletion').then((r) => r.data)
+export const changeMyPassword = (data) => api.post('/clients/me/password', data).then((r) => r.data)
 
 // Admin — demandes de suppression RGPD
 export const fetchDeletionRequests = () => api.get('/admin/deletion-requests').then((r) => r.data)
