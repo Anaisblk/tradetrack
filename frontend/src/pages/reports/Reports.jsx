@@ -32,8 +32,7 @@ export default function ReportsPage() {
   const { data: dailyRevenue = [] } = useQuery({ queryKey: QUERY_KEYS.dashboard('repairs-daily-revenue'), queryFn: fetchRepairsDailyRevenue })
   const { data: topDevices = [] } = useQuery({ queryKey: QUERY_KEYS.dashboard('top-devices'), queryFn: () => fetchTopDevices(10) })
 
-  // Recharts dimensionne en JS : l'axe Y doit rétrécir sur mobile, sinon ses libellés
-  // (150px) et la marge (40px) ne laissent quasiment aucune place aux barres.
+  // Recharts is sized in JS, so the Y axis has to shrink on mobile
   const isWide = useMediaQuery(SM)
 
   const byStatus = Object.fromEntries(breakdown.map((s) => [s.status, s.count]))
@@ -47,9 +46,9 @@ export default function ReportsPage() {
     <div className="space-y-8">
       <h2 className="text-xl sm:text-2xl font-bold">Rapports atelier</h2>
 
-      {/* 3 cartes chiffres */}
+      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Carte 1 : réparations terminées + sélecteur de période */}
+        {/* Card 1: completed repairs */}
         <div className="bg-white rounded-xl border p-5 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm text-gray-500">Réparations terminées</p>
@@ -61,7 +60,7 @@ export default function ReportsPage() {
           <p className="text-sm text-gray-500">CA : {formatCurrency(stats?.revenue_ttc)}</p>
         </div>
 
-        {/* Carte 2 : temps moyen d'intervention */}
+        {/* Card 2: average repair time */}
         <div className="bg-white rounded-xl border p-5">
           <p className="text-sm text-gray-500">Temps moyen d'intervention</p>
           <p className="text-3xl font-bold mt-1">
@@ -70,7 +69,7 @@ export default function ReportsPage() {
           <p className="text-sm text-gray-500 mt-1">entre réception et clôture</p>
         </div>
 
-        {/* Carte 3 : répartition par statut */}
+        {/* Card 3: breakdown by status */}
         <div className="bg-white rounded-xl border p-5">
           <p className="text-sm text-gray-500">Répartition par statut</p>
           <p className="text-base font-medium mt-2 leading-relaxed">
@@ -80,9 +79,9 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      {/* 3 graphiques */}
+      
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Graphe 1 : réparations mensuelles */}
+        {/* Chart 1: repairs per month */}
         <div className="bg-white rounded-xl border p-6">
           <h3 className="font-semibold mb-4">Réparations terminées par mois (année en cours)</h3>
           <ResponsiveContainer width="100%" height={250}>
@@ -96,7 +95,7 @@ export default function ReportsPage() {
           </ResponsiveContainer>
         </div>
 
-        {/* Graphe 2 : CA réparations 30 derniers jours */}
+        {/* Chart 2: revenue over the last 30 days */}
         <div className="bg-white rounded-xl border p-6">
           <h3 className="font-semibold mb-4">CA réparations - 30 derniers jours</h3>
           <ResponsiveContainer width="100%" height={250}>
@@ -110,7 +109,7 @@ export default function ReportsPage() {
           </ResponsiveContainer>
         </div>
 
-        {/* Graphe 3 : top appareils réparés */}
+        {/* Chart 3: most repaired devices */}
         <div className="bg-white rounded-xl border p-6 lg:col-span-2">
           <h3 className="font-semibold mb-4">Top 10 des appareils les plus réparés</h3>
           <ResponsiveContainer width="100%" height={300}>

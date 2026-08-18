@@ -14,7 +14,7 @@ import { formatCurrency, formatDate, QUOTE_STATUS_LABELS, getStatusColor } from 
 import { parseQuoteNotes, extractDeviceFields } from '../../utils/quoteNotes'
 import { DEVICE_TYPES, getBrands } from '../../utils/deviceCatalog'
 
-// Construit l'URL /repairs/new préremplie à partir d'un devis autonome.
+// Builds a prefilled /repairs/new URL from a standalone quote
 const buildRepairUrl = (q) => {
   const { deviceInfo, problem } = parseQuoteNotes(q.notes)
   const { device_type, device_brand, device_model } = extractDeviceFields(deviceInfo, DEVICE_TYPES, getBrands)
@@ -29,7 +29,7 @@ const buildRepairUrl = (q) => {
   return `/repairs/new?${params.toString()}`
 }
 
-// Mêmes champs que les SortableHeader du tableau, pour le tri en vue cartes.
+// Same fields as the table headers, for the card view
 const SORT_FIELDS = [
   { label: 'N°', field: 'id' },
   { label: 'Montant TTC', field: 'total_ttc' },
@@ -84,7 +84,7 @@ export default function QuotesList() {
       <MobileSortSelect className="md:hidden" fields={SORT_FIELDS} sort={sort} onSort={handleSort} />
 
       <div className="bg-white rounded-xl border overflow-hidden">
-        {/* Mobile : cartes. Le tableau reprend la main à partir de `md`. */}
+        {/* Cards on mobile, table from md */}
         <div className="md:hidden divide-y">
           {isLoading ? (
             <p className="text-center py-8 text-gray-400 text-sm">Chargement...</p>

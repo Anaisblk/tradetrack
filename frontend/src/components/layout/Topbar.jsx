@@ -18,7 +18,7 @@ export default function Topbar({ onOpenNav = () => {} }) {
 
   useEffect(() => {
     if (!accessToken) return
-    // EventSource ne supporte pas les headers personnalisés : on passe le token en query
+    // EventSource cannot send custom headers, so the token goes in the query string
     const url = `${import.meta.env.VITE_API_URL || '/api'}/notifications/stream?token=${encodeURIComponent(accessToken)}`
     const es = new EventSource(url)
     es.onmessage = (e) => {
@@ -47,7 +47,7 @@ export default function Topbar({ onOpenNav = () => {} }) {
 
   return (
     <header className="h-16 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between gap-2 sticky top-0 z-20">
-      {/* Ouverture du tiroir de navigation — mobile et tablette uniquement */}
+      {/* Opens the nav drawer, mobile and tablet */}
       <button
         type="button"
         onClick={onOpenNav}

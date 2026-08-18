@@ -12,10 +12,10 @@ import Input from '../../components/ui/Input'
 import Select from '../../components/ui/Select'
 import { DEVICE_TYPES, getBrands, getModels } from '../../utils/deviceCatalog'
 
-// Valeur sentinelle pour l'option "Autre" qui bascule le select en saisie libre.
+// Sentinel value: "Autre" switches the select to a free text field
 const OTHER = '__other__'
 
-// 14 défauts signalés, dans l'ordre exact du cahier des charges.
+// The 14 reported faults, in the order given by the specification
 const DEFECTS = [
   'Écran cassé/défectueux',
   'Batterie',
@@ -39,7 +39,7 @@ const buildOptions = (values) => [
   { value: OTHER, label: '— Autre / non listé —' },
 ]
 
-// Champ appareil : soit un <select> rigide, soit un <Input> libre quand "Autre" est choisi.
+// Device field: a fixed <select>, or a free Input when "Autre" is picked
 function DeviceField({ label, disabled, options, selectValue, isCustom, customValue, placeholder, onSelectChange, onCustomChange, onBackToList }) {
   if (isCustom) {
     return (
@@ -64,11 +64,7 @@ export default function NewRepair() {
   const qc = useQueryClient()
   const [searchParams] = useSearchParams()
   const fromQuote = searchParams.get('fromQuote')
-
-  // --- Section 1 : client ---
   const [client, setClient] = useState(null)
-
-  // --- Section 2 : appareil ---
   const [deviceType, setDeviceType] = useState('')
   const [isCustomType, setIsCustomType] = useState(false)
   const [customType, setCustomType] = useState('')
@@ -82,19 +78,13 @@ export default function NewRepair() {
   const [customModel, setCustomModel] = useState('')
 
   const [serialNumber, setSerialNumber] = useState('')
-
-  // --- Section 3 : défauts ---
   const [defects, setDefects] = useState([])
   const [observations, setObservations] = useState('')
-
-  // --- Section 4 : notes de dépôt ---
   const [depositNotes, setDepositNotes] = useState('')
-
-  // --- Section 5 : estimation ---
   const [estimatedCost, setEstimatedCost] = useState('')
   const [depositAmount, setDepositAmount] = useState('')
 
-  // Préremplissage depuis un devis (passerelle "→ Réparation")
+  // Prefill from a quote
   useEffect(() => {
     if (!fromQuote) return
     const type = searchParams.get('device_type') || ''
@@ -121,7 +111,7 @@ export default function NewRepair() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Valeurs effectives (select figé OU saisie libre)
+  // Effective values: either the select or the free input
   const effectiveType = isCustomType ? customType.trim() : deviceType
   const effectiveBrand = isCustomBrand ? customBrand.trim() : deviceBrand
   const effectiveModel = isCustomModel ? customModel.trim() : deviceModel
@@ -129,8 +119,6 @@ export default function NewRepair() {
   const typeOptions = buildOptions(DEVICE_TYPES.filter((t) => t !== 'Autre'))
   const brandOptions = buildOptions(getBrands(effectiveType))
   const modelOptions = buildOptions(getModels(effectiveBrand, effectiveType))
-
-  // --- Handlers appareil (cascade : changer un niveau réinitialise les niveaux inférieurs) ---
   const resetBrand = () => { setDeviceBrand(''); setIsCustomBrand(false); setCustomBrand('') }
   const resetModel = () => { setDeviceModel(''); setIsCustomModel(false); setCustomModel('') }
 
@@ -166,7 +154,7 @@ export default function NewRepair() {
       qc.invalidateQueries({ queryKey: QUERY_KEYS.repairs })
       toast.success(`Réparation #${repair.id} enregistrée`)
 
-      // Rattache le devis d'origine à la nouvelle réparation (passerelle "→ Réparation").
+      // Links the original quote to the new repair
       if (fromQuote) {
         try {
           const quote = await fetchQuote(fromQuote)
@@ -199,7 +187,7 @@ export default function NewRepair() {
     if (observations.trim()) parts.push('Observations : ' + observations.trim())
     const problemDescription = parts.join('\n\n')
 
-    // Traçabilité : mention du devis d'origine dans les notes de dépôt.
+    // Keeps a trace of the original quote in the intake notes
     let notes = depositNotes.trim()
     if (fromQuote) {
       const tag = `Créé à partir du devis #${fromQuote}`
@@ -229,13 +217,13 @@ export default function NewRepair() {
         </div>
       )}
 
-      {/* Section 1 : Client */}
+      {/* Section 1: client */}
       <div className="bg-white rounded-xl border p-6 space-y-4">
         <h3 className="font-semibold">Client</h3>
         <ClientSelector value={client} onChange={setClient} />
       </div>
 
-      {/* Section 2 : Appareil */}
+      {/* Section 2: device */}
       <div className="bg-white rounded-xl border p-6 space-y-4">
         <h3 className="font-semibold">Appareil</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -283,7 +271,7 @@ export default function NewRepair() {
         />
       </div>
 
-      {/* Section 3 : Défauts signalés */}
+      {/* Section 3: reported faults */}
       <div className="bg-white rounded-xl border p-6 space-y-4">
         <h3 className="font-semibold">Défauts signalés par le client</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -310,7 +298,7 @@ export default function NewRepair() {
         </div>
       </div>
 
-      {/* Section 4 : Notes de dépôt */}
+      {/* Section 4: intake notes */}
       <div className="bg-white rounded-xl border p-6 space-y-4">
         <h3 className="font-semibold">Notes de dépôt</h3>
         <textarea
@@ -322,7 +310,7 @@ export default function NewRepair() {
         />
       </div>
 
-      {/* Section 5 : Estimation (facultative) */}
+      {/* Section 5: estimate (optional) */}
       <div className="bg-white rounded-xl border p-6 space-y-4">
         <h3 className="font-semibold">Estimation (facultative)</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -342,8 +330,6 @@ export default function NewRepair() {
           />
         </div>
       </div>
-
-      {/* Boutons */}
       <div className="flex gap-3">
         <Button variant="secondary" onClick={() => navigate('/repairs')}>Annuler</Button>
         <Button onClick={handleSubmit} disabled={mutation.isPending}>

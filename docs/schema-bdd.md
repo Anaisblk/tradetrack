@@ -47,6 +47,8 @@ erDiagram
         string last_name
         string phone
         bool is_active
+        string approval_status
+        timestamp deletion_requested_at
     }
     CLIENTS {
         int id PK
@@ -149,6 +151,15 @@ le prix et le taux de TVA au moment de l'opération. Modifier le prix
 d'un produit ne réécrit donc jamais l'historique — indispensable pour des pièces comptables.
 `quote_items.product_id` est nullable : un devis peut porter une prestation libre, décrite
 en texte, sans référence au catalogue.
+
+**`approval_status` distinct de `is_active`.** Une inscription publique crée un compte
+`pending` et inactif : la connexion est refusée jusqu'à la validation d'un administrateur.
+Les deux colonnes sont nécessaires — avec `is_active` seul, un compte jamais validé et un
+compte suspendu seraient indiscernables. Valeurs : `pending`, `approved`, `rejected`.
+
+**`deletion_requested_at` sur les utilisateurs.** Horodate une demande de suppression RGPD.
+La ligne reste dans la file d'attente de l'administrateur tant que le champ est renseigné ;
+l'anonymisation le remet à `NULL`.
 
 **Prix et TVA en `decimal`.** Jamais de flottant sur des montants : les erreurs d'arrondi
 binaires sont inacceptables sur des écritures comptables.

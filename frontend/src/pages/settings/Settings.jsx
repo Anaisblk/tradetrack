@@ -25,7 +25,7 @@ const ROLE_OPTIONS = [
 
 const EMPTY_CREATE = { email: '', password: '', first_name: '', last_name: '', phone: '', role: 'vendeur' }
 
-// Un compte en attente demande une action : on le remonte en tête de liste.
+// Pending accounts need an action, so they are listed first
 const PRIORITY = { pending: 0, rejected: 1, approved: 2 }
 
 function statusBadge(u) {
@@ -80,7 +80,7 @@ export default function SettingsPage() {
   }
 
   const submitCred = () => {
-    // Mot de passe laissé vide : on ne l'envoie pas, il reste inchangé.
+    // Empty password field means the password stays unchanged
     const data = { email: credForm.email }
     if (credForm.password.trim()) data.password = credForm.password
     credMutation.mutate({ id: credTarget.id, data })
@@ -185,7 +185,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Création d'un utilisateur par l'admin : validé d'emblée côté backend */}
+      {/* User created by an admin, approved right away */}
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Nouvel utilisateur">
         <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -203,7 +203,7 @@ export default function SettingsPage() {
         </div>
       </Modal>
 
-      {/* Réinitialisation des accès d'un utilisateur qui a oublié ses identifiants */}
+      {/* Resets the credentials of someone who lost their access */}
       <Modal
         isOpen={credTarget !== null}
         onClose={() => setCredTarget(null)}

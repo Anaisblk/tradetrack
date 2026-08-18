@@ -22,7 +22,7 @@ const buildOptions = (values) => [
   { value: OTHER, label: '— Autre / non listé —' },
 ]
 
-// Champ appareil : soit un <select> rigide, soit un <Input> libre quand "Autre" est choisi.
+// Device field: a fixed <select>, or a free Input when "Autre" is picked
 function DeviceField({ label, disabled, options, selectValue, isCustom, customValue, placeholder, onSelectChange, onCustomChange, onBackToList }) {
   if (isCustom) {
     return (
@@ -53,8 +53,6 @@ export default function NewQuote() {
   const qc = useQueryClient()
 
   const [client, setClient] = useState(null)
-
-  // Appareil concerné
   const [deviceType, setDeviceType] = useState('')
   const [isCustomType, setIsCustomType] = useState(false)
   const [customType, setCustomType] = useState('')
@@ -65,11 +63,7 @@ export default function NewQuote() {
   const [isCustomModel, setIsCustomModel] = useState(false)
   const [customModel, setCustomModel] = useState('')
   const [problem, setProblem] = useState('')
-
-  // Lignes du devis
   const [items, setItems] = useState([])
-
-  // Validité et notes
   const [validUntil, setValidUntil] = useState(defaultValidUntil())
   const [freeNotes, setFreeNotes] = useState('')
 
@@ -109,7 +103,7 @@ export default function NewQuote() {
   const addFreeItem = () => setItems([...items, { product_id: null, description: '', condition: 'neuf', purchase_price: 0, quantity: 1, unit_price_ht: '', tva_rate: 20 }])
 
   const updateItem = (idx, field, value) => {
-    // Stockage en string brute pour permettre l'édition libre. Conversion au submit.
+    // Kept as a raw string so the field stays freely editable, converted on submit
     setItems(items.map((item, i) => i === idx ? { ...item, [field]: value } : item))
   }
 
@@ -155,13 +149,13 @@ export default function NewQuote() {
     <div className="max-w-4xl space-y-6">
       <h2 className="text-xl sm:text-2xl font-bold">Nouveau devis</h2>
 
-      {/* Section 1 : Client */}
+      {/* Section 1: client */}
       <div className="bg-white rounded-xl border p-6 space-y-4">
         <h3 className="font-semibold">Client</h3>
         <ClientSelector value={client} onChange={setClient} />
       </div>
 
-      {/* Section 2 : Appareil concerné */}
+      {/* Section 2: device */}
       <div className="bg-white rounded-xl border p-6 space-y-4">
         <h3 className="font-semibold">Appareil concerné</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -212,7 +206,7 @@ export default function NewQuote() {
         </div>
       </div>
 
-      {/* Section 3 : Lignes du devis */}
+      {/* Section 3: quote lines */}
       <div className="bg-white rounded-xl border p-6 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="font-semibold">Lignes du devis (prix TTC)</h3>
@@ -259,7 +253,7 @@ export default function NewQuote() {
         </div>
         )}
 
-        {/* Section 4 : Totaux */}
+        {/* Section 4: totals */}
         <div className="flex justify-end">
           <div className="bg-gray-50 rounded-lg p-4 w-full sm:w-auto sm:min-w-48 text-sm space-y-1">
             <div className="flex justify-between"><span className="text-gray-500">HT</span><span>{formatCurrency(totals.total_ht)}</span></div>
@@ -269,7 +263,7 @@ export default function NewQuote() {
         </div>
       </div>
 
-      {/* Section 5 : Validité et notes */}
+      {/* Section 5: validity and notes */}
       <div className="bg-white rounded-xl border p-6 space-y-4">
         <h3 className="font-semibold">Validité et notes</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -286,8 +280,6 @@ export default function NewQuote() {
           />
         </div>
       </div>
-
-      {/* Boutons */}
       <div className="flex gap-3">
         <Button variant="secondary" onClick={() => navigate('/quotes')}>Annuler</Button>
         <Button onClick={handleSubmit} disabled={mutation.isPending}>

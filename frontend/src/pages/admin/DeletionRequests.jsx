@@ -8,7 +8,7 @@ import { formatDate } from '../../utils/formatters'
 import Button from '../../components/ui/Button'
 import Modal from '../../components/ui/Modal'
 
-// Jours restants avant l'échéance des 14 jours (négatif = en retard).
+// Days left before the 14-day deadline (negative means late)
 const daysRemaining = (requestedAt) => {
   const requested = new Date(requestedAt)
   const elapsed = Math.floor((Date.now() - requested.getTime()) / 86400000)
@@ -35,7 +35,7 @@ export default function DeletionRequests() {
     onError: (e) => toast.error(e.response?.data?.detail || 'Erreur lors de l\'anonymisation'),
   })
 
-  // Garde admin : seuls les administrateurs accèdent à cette page.
+  // Admin only
   if (user?.role !== 'admin') return <Navigate to="/" replace />
 
   return (

@@ -197,7 +197,7 @@ async def export_client_data(db: AsyncSession, client_id: int) -> dict:
 
 
 def _fmt_dt(value, with_time: bool = False) -> str:
-    """Formate une date ISO en jj/mm/aaaa (ou avec l'heure). '—' si absente."""
+    """Formats a date as dd/mm/yyyy, or '—' when missing."""
     if not value:
         return "—"
     try:
@@ -226,7 +226,7 @@ def _repair_flowables(r: dict, styles) -> list:
 
 
 def _quote_flowables(q: dict, styles) -> list:
-    """Bloc PDF pour un devis."""
+    """PDF block for a quote."""
     return [
         Paragraph(
             f"<b>Devis #{q['id']}</b> — Total : {float(q['total_ttc']):.2f} € | "
@@ -237,7 +237,7 @@ def _quote_flowables(q: dict, styles) -> list:
 
 
 def _appointment_flowables(a: dict, styles) -> list:
-    """Bloc PDF pour un rendez-vous."""
+    """PDF block for an appointment."""
     return [
         Paragraph(
             f"<b>{a.get('title') or 'Rendez-vous'}</b> — "
@@ -249,7 +249,7 @@ def _appointment_flowables(a: dict, styles) -> list:
 
 
 def _draw_footer(canvas, doc) -> None:
-    """Pied de page fixe (mention RGPD art. 20) sur chaque page."""
+    """Footer repeated on every page."""
     canvas.saveState()
     canvas.setFont("Helvetica", 8)
     canvas.setFillColor(colors.HexColor("#666666"))

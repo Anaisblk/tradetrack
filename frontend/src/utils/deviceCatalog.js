@@ -1,5 +1,5 @@
-// Catalogue de devices pour l'autocomplétion des réparations.
-// Les listes ne sont pas exhaustives — l'utilisateur peut toujours taper un nom libre.
+// Device catalog used to autocomplete repairs and quotes.
+// The lists are not exhaustive: a free name can always be typed.
 
 export const DEVICE_TYPES = [
   'Smartphone',
@@ -27,9 +27,9 @@ export const BRANDS_BY_TYPE = {
   'Autre': [],
 }
 
-// Clé: "<Marque>|<Type>"
+// Key: "<Brand>|<Type>"
 export const MODELS_BY_BRAND_TYPE = {
-  // === Apple — Smartphone ===
+  // === Apple - Smartphone ===
   'Apple|Smartphone': [
     'iPhone 15 Pro Max', 'iPhone 15 Pro', 'iPhone 15 Plus', 'iPhone 15',
     'iPhone 14 Pro Max', 'iPhone 14 Pro', 'iPhone 14 Plus', 'iPhone 14',
@@ -40,7 +40,7 @@ export const MODELS_BY_BRAND_TYPE = {
     'iPhone XS Max', 'iPhone XS', 'iPhone XR', 'iPhone X',
     'iPhone 8 Plus', 'iPhone 8', 'iPhone 7 Plus', 'iPhone 7',
   ],
-  // === Apple — Tablette ===
+  // === Apple - Tablet ===
   'Apple|Tablette': [
     'iPad Pro 12.9 (6e gen)', 'iPad Pro 11 (4e gen)',
     'iPad Pro 12.9 (5e gen)', 'iPad Pro 11 (3e gen)',
@@ -48,7 +48,7 @@ export const MODELS_BY_BRAND_TYPE = {
     'iPad (10e gen)', 'iPad (9e gen)', 'iPad (8e gen)',
     'iPad mini (6e gen)', 'iPad mini (5e gen)',
   ],
-  // === Apple — PC portable ===
+  // === Apple - Laptop ===
   'Apple|PC portable': [
     'MacBook Pro 16" M3 Max', 'MacBook Pro 14" M3 Pro', 'MacBook Pro 13" M2',
     'MacBook Pro 16" M2 Max', 'MacBook Pro 14" M2 Pro',
@@ -59,7 +59,7 @@ export const MODELS_BY_BRAND_TYPE = {
   'Apple|Montre connectée': ['Apple Watch Ultra 2', 'Apple Watch Ultra', 'Apple Watch Series 9', 'Apple Watch Series 8', 'Apple Watch Series 7', 'Apple Watch SE (2e gen)', 'Apple Watch SE'],
   'Apple|Écouteurs / Casque': ['AirPods Pro (2e gen)', 'AirPods Pro', 'AirPods (3e gen)', 'AirPods (2e gen)', 'AirPods Max'],
 
-  // === Samsung — Smartphone ===
+  // === Samsung - Smartphone ===
   'Samsung|Smartphone': [
     'Galaxy S24 Ultra', 'Galaxy S24+', 'Galaxy S24',
     'Galaxy S23 Ultra', 'Galaxy S23+', 'Galaxy S23',
@@ -97,12 +97,12 @@ export const MODELS_BY_BRAND_TYPE = {
   'Oppo|Smartphone': ['Find X7 Ultra', 'Find X6 Pro', 'Find X5 Pro', 'Reno 11', 'Reno 10', 'A98', 'A78'],
   'Realme|Smartphone': ['GT 5 Pro', 'GT Neo 5', '11 Pro+', '10 Pro+'],
 
-  // === Sony — Smartphone & TV & Audio ===
+  // === Sony - Smartphone, TV, audio ===
   'Sony|Smartphone': ['Xperia 1 V', 'Xperia 1 IV', 'Xperia 5 V', 'Xperia 5 IV', 'Xperia 10 V'],
   'Sony|Téléviseur': ['Bravia XR A95L (OLED)', 'Bravia XR A80L (OLED)', 'Bravia XR X95L', 'Bravia XR X90L'],
   'Sony|Écouteurs / Casque': ['WH-1000XM5', 'WH-1000XM4', 'WF-1000XM5', 'WF-1000XM4', 'LinkBuds S'],
 
-  // === Console de jeu ===
+  // === Game consoles ===
   'Sony|Console de jeu': ['PlayStation 5 Pro', 'PlayStation 5', 'PlayStation 5 Slim', 'PlayStation 4 Pro', 'PlayStation 4', 'PlayStation 4 Slim', 'PS Vita'],
   'Microsoft|Console de jeu': ['Xbox Series X', 'Xbox Series S', 'Xbox One X', 'Xbox One S', 'Xbox One'],
   'Nintendo|Console de jeu': ['Switch OLED', 'Switch (modèle 2019)', 'Switch (lancement)', 'Switch Lite', '3DS', '3DS XL', '2DS'],
@@ -111,7 +111,7 @@ export const MODELS_BY_BRAND_TYPE = {
   'Lenovo|Console de jeu': ['Legion Go'],
   'Microsoft|PC portable': ['Surface Laptop 5', 'Surface Laptop 4', 'Surface Laptop Studio', 'Surface Book 3', 'Surface Pro 9', 'Surface Pro 8'],
 
-  // === PC portables ===
+  // === Laptops ===
   'Asus|PC portable': ['ZenBook 14 OLED', 'ZenBook Pro 14', 'VivoBook 15', 'VivoBook S 14', 'ROG Strix G15', 'ROG Strix G16', 'ROG Zephyrus G14', 'ROG Zephyrus G16', 'TUF Gaming A15', 'TUF Gaming F15'],
   'Dell|PC portable': ['XPS 13', 'XPS 15', 'XPS 17', 'Inspiron 14', 'Inspiron 15', 'Inspiron 16', 'Latitude 7440', 'Latitude 5440', 'Alienware m16', 'Alienware m18'],
   'HP|PC portable': ['Spectre x360 14', 'Spectre x360 16', 'EliteBook 840', 'EliteBook 1040', 'Pavilion 15', 'Pavilion x360', 'Omen 16', 'Omen 17', 'Victus 15', 'Victus 16'],
@@ -122,26 +122,26 @@ export const MODELS_BY_BRAND_TYPE = {
   'Huawei|PC portable': ['MateBook X Pro', 'MateBook 14', 'MateBook 16s', 'MateBook D 14', 'MateBook D 16'],
   'LG|PC portable': ['Gram 14', 'Gram 15', 'Gram 16', 'Gram 17'],
 
-  // === Imprimantes ===
+  // === Printers ===
   'HP|Imprimante': ['OfficeJet Pro 9015e', 'Envy 6055e', 'LaserJet Pro M404', 'DeskJet 2710e'],
   'Canon|Imprimante': ['PIXMA TS5350a', 'PIXMA TR4650', 'i-SENSYS LBP6030B', 'MAXIFY GX4050'],
   'Epson|Imprimante': ['EcoTank ET-2820', 'EcoTank ET-2850', 'WorkForce WF-2950', 'Expression Home XP-3200'],
   'Brother|Imprimante': ['DCP-L2530DW', 'MFC-J491DW', 'HL-L2350DW'],
 
-  // === Montres connectées ===
+  // === Smartwatches ===
   'Garmin|Montre connectée': ['Fenix 7 Pro', 'Fenix 7', 'Forerunner 965', 'Forerunner 265', 'Forerunner 255', 'Venu 3', 'Venu 2', 'Epix Pro', 'Instinct 2'],
   'Huawei|Montre connectée': ['Watch GT 4', 'Watch GT 3 Pro', 'Watch GT 3', 'Watch 4 Pro', 'Watch Ultimate'],
   'Fitbit|Montre connectée': ['Versa 4', 'Sense 2', 'Charge 6', 'Charge 5', 'Inspire 3'],
   'Withings|Montre connectée': ['ScanWatch 2', 'ScanWatch Light', 'Steel HR'],
 
-  // === Écouteurs / Casques ===
+  // === Earphones / Headphones ===
   'Bose|Écouteurs / Casque': ['QuietComfort Ultra Headphones', 'QuietComfort 45', 'QuietComfort Ultra Earbuds', 'QuietComfort Earbuds II'],
   'JBL|Écouteurs / Casque': ['Tour One M2', 'Tour Pro 2', 'Live 770NC', 'Tune 770NC'],
   'Sennheiser|Écouteurs / Casque': ['Momentum 4', 'Momentum True Wireless 3', 'HD 660S2', 'Accentum'],
   'Beats|Écouteurs / Casque': ['Studio Pro', 'Solo 3 Wireless', 'Studio Buds +', 'Fit Pro'],
   'Jabra|Écouteurs / Casque': ['Elite 10', 'Elite 8 Active', 'Elite 5', 'Evolve2 75'],
 
-  // === Téléviseurs ===
+  // === TVs ===
   'LG|Téléviseur': ['OLED G3', 'OLED C3', 'OLED B3', 'QNED 99', 'QNED 91', 'NanoCell 81'],
   'TCL|Téléviseur': ['C845', 'C745', 'C645', 'P745'],
   'Hisense|Téléviseur': ['U8K', 'U7K', 'A6K'],

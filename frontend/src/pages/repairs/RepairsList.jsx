@@ -12,7 +12,7 @@ import Pagination from '../../components/ui/Pagination'
 import { IconPlus } from '../../components/ui/Icon'
 import { formatDate, REPAIR_STATUS_LABELS, getStatusColor } from '../../utils/formatters'
 
-// Mêmes champs que les SortableHeader du tableau, pour le tri en vue cartes.
+// Same fields as the table headers, for the card view
 const SORT_FIELDS = [
   { label: 'N°', field: 'id' },
   { label: 'Statut', field: 'status' },
@@ -66,7 +66,7 @@ export default function RepairsList() {
       <MobileSortSelect className="md:hidden" fields={SORT_FIELDS} sort={sort} onSort={handleSort} />
 
       <div className="bg-white rounded-xl border overflow-hidden">
-        {/* Mobile : cartes. Le tableau ci-dessous reprend la main à partir de `md`. */}
+        {/* Cards on mobile, table from md */}
         <div className="md:hidden divide-y">
           {isLoading ? (
             <p className="text-center py-8 text-gray-400 text-sm">Chargement...</p>

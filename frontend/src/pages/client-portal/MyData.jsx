@@ -14,15 +14,14 @@ export default function MyData() {
   const { data: me } = useQuery({ queryKey: ['me'], queryFn: fetchMe })
   const deletionRequestedAt = me?.deletion_requested_at
 
-  // Le volume réellement détenu conditionne l'export : le backend refuse de produire un
-  // PDF vide, l'interface ne doit donc pas le proposer. Même source de vérité des deux côtés.
+  // No export button when there is no data; the backend refuses an empty PDF too
   const { data: summary, isLoading: summaryLoading } = useQuery({
     queryKey: ['me', 'data-summary'],
     queryFn: fetchMyDataSummary,
   })
   const hasData = summary?.has_data === true
 
-  // « 2 réparations, 1 devis » — seules les sections non vides sont citées.
+  // "2 repairs, 1 quote" - only non-empty sections are listed
   const summaryLabel = [
     [summary?.repairs, 'réparation'],
     [summary?.quotes, 'devis'],
@@ -35,7 +34,6 @@ export default function MyData() {
   const exportMutation = useMutation({
     mutationFn: exportMyData,
     onSuccess: (blob) => {
-      // Téléchargement local du PDF
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -71,10 +69,9 @@ export default function MyData() {
         </p>
       </div>
 
-      {/* Export — masqué tant qu'il n'y a rien à exporter */}
+      {/* Export, hidden when there is nothing to export */}
       {summaryLoading ? (
-        // Pendant le chargement, on n'affiche aucun bouton : mieux vaut ne rien montrer
-        // qu'une action qui disparaîtrait juste après.
+        // Nothing is shown while loading, rather than a button that would vanish
         <div className="bg-white rounded-xl border p-6">
           <p className="text-sm text-gray-400">Chargement de vos données…</p>
         </div>
@@ -105,8 +102,6 @@ export default function MyData() {
           </p>
         </div>
       )}
-
-      {/* Suppression */}
       <div className="bg-white rounded-xl border border-red-200 p-6 space-y-3">
         <h3 className="font-semibold text-red-700">Supprimer mes données</h3>
 

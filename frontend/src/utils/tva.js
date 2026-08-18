@@ -1,8 +1,8 @@
-// Tous les prix saisis dans l'application sont en TTC.
-// Pour les biens d'occasion, la TVA s'applique sur la marge (TVM) :
-//   marge_ttc = prix_ttc − achat_ttc
-//   tva = max(0, marge_ttc) × 20/120
-// Pour les produits neufs, la TVA est extraite du TTC : tva = ttc × 20/120
+// Every price entered in the app includes VAT.
+// Second-hand goods: VAT applies to the margin only:
+//   margin = price - purchase price
+//   vat = max(0, margin) * 20/120
+// New products: VAT is extracted from the price: vat = price * 20/120
 
 export const TVA_RATE = 20
 
@@ -10,8 +10,8 @@ export const getTvaRate = () => TVA_RATE
 
 const round = (n) => Math.round(n * 100) / 100
 
-// Calcule les sous-totaux d'une ligne de devis ou de réparation.
-// `item` : { quantity, unit_price_ht (= prix unitaire TTC saisi), condition, purchase_price (TTC) }
+// Subtotals for one quote or repair line.
+// item: { quantity, unit_price_ht (price incl. VAT), condition, purchase_price }
 export const computeItemAmounts = (item) => {
   const qty = Number(item.quantity) || 0
   const unitTTC = Number(item.unit_price_ht ?? item.unit_price) || 0
@@ -25,7 +25,7 @@ export const computeItemAmounts = (item) => {
     return { subtotalHT, subtotalTVA, subtotalTTC }
   }
 
-  // Neuf : TVA extraite du TTC
+  // New: VAT extracted from the price
   const subtotalTTC = round(qty * unitTTC)
   const subtotalTVA = round(subtotalTTC * 20 / 120)
   const subtotalHT = round(subtotalTTC - subtotalTVA)

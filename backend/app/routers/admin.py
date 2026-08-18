@@ -16,8 +16,7 @@ async def list_deletion_requests(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(require_admin),
 ):
-    """RGPD — liste les utilisateurs ayant soumis une demande de suppression,
-    les plus anciennes en premier (à traiter sous 14 jours)."""
+    """Deletion requests, oldest first (14 days to process them)."""
     result = await db.execute(
         select(User)
         .where(User.deletion_requested_at.isnot(None))
@@ -32,7 +31,7 @@ async def approve_deletion_request(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(require_admin),
 ):
-    """RGPD — approuve une demande : anonymise l'utilisateur et son dossier client."""
+    """Approves a request: anonymises the user and their client record."""
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
     if not user:
